@@ -178,6 +178,16 @@ async function startServer() {
 
   //--- API ROUTES ---
 
+  // Health: confirm the serverless function is reachable and configuration is present.
+  app.get("/api/health", async (req, res) => {
+    res.json({
+      ok: true,
+      timestamp: new Date().toISOString(),
+      supabaseConfigured: Boolean(supabase),
+      adminEmailConfigured: Boolean(process.env.ADMIN_EMAIL),
+    });
+  });
+
   // Auth: Login with Supabase
   app.post("/api/auth/login", async (req, res) => {
     const { username, password } = req.body;

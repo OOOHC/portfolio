@@ -35,6 +35,18 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 
+// TypeScript workaround for projects without @types/react or when using the
+// automatic JSX runtime. Declaring the module and a permissive JSX.IntrinsicElements
+// prevents TS7016/TS7026 errors in this file.
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      // allow any element (e.g., div, img, custom) to be used without explicit typing
+      [elemName: string]: any;
+    }
+  }
+}
+
 const SKILL_CATEGORIES = [
   {
     title: "Programming Languages",
