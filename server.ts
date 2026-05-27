@@ -159,6 +159,7 @@ async function startServer() {
 
   app.use(express.json());
 
+
   // --- Auth middleware: verify Supabase JWT token ---
   const requireAuth = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const client = getSupabaseClient(res);
