@@ -1,7 +1,8 @@
 import express from "express";
 import path from "path";
 import fs from "fs/promises";
-import { createServer as createViteServer } from "vite";
+// `vite` is only needed in local dev middleware. Import it dynamically
+// inside the dev-only branch to avoid initializing Vite in serverless environments.
 import { createClient } from "@supabase/supabase-js";
 
 // --- Supabase client (server-side, uses env vars) ---
@@ -233,6 +234,15 @@ async function startServer() {
 
   // Get all blogs
   app.get("/api/blogs", async (req, res) => {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('blogs').select('*').order('id', { ascending: false });
+        if (error) throw error;
+        return res.json(data || []);
+      } catch (e) {
+        console.error('Supabase fetch blogs error, falling back to local file:', e);
+      }
+    }
     const blogs = await getBlogs();
     res.json(blogs);
   });
@@ -243,7 +253,6 @@ async function startServer() {
     if (!title || !description) {
       return res.status(400).json({ error: "Title and description are required" });
     }
-    const blogs = await getBlogs();
     const formattedDate = new Date().toLocaleDateString("en-US", {
       month: "short",
       day: "2-digit",
@@ -257,6 +266,16 @@ async function startServer() {
       link: link || "#",
       draft: !!draft
     };
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('blogs').insert([newBlog]).select();
+        if (error) throw error;
+        return res.status(201).json((data && data[0]) || newBlog);
+      } catch (e) {
+        console.error('Supabase insert blog error, falling back to local file:', e);
+      }
+    }
+    const blogs = await getBlogs();
     blogs.unshift(newBlog);
     const success = await saveBlogs(blogs);
     if (success) {
@@ -270,6 +289,21 @@ async function startServer() {
   app.put("/api/blogs/:id", requireAuth, async (req, res) => {
     const { id } = req.params;
     const { title, description, link, draft } = req.body;
+    if (supabase) {
+      try {
+        const updates: any = {};
+        if (title !== undefined) updates.title = title;
+        if (description !== undefined) updates.description = description;
+        if (link !== undefined) updates.link = link;
+        if (draft !== undefined) updates.draft = !!draft;
+        const { data, error } = await supabase.from('blogs').update(updates).eq('id', id).select();
+        if (error) throw error;
+        if (!data || data.length === 0) return res.status(404).json({ error: 'Blog post not found' });
+        return res.json(data[0]);
+      } catch (e) {
+        console.error('Supabase update blog error, falling back to local file:', e);
+      }
+    }
     const blogs = await getBlogs();
     const idx = blogs.findIndex((b: any) => b.id === id);
     if (idx === -1) {
@@ -293,6 +327,16 @@ async function startServer() {
   // Delete a blog
   app.delete("/api/blogs/:id", requireAuth, async (req, res) => {
     const { id } = req.params;
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('blogs').delete().eq('id', id).select();
+        if (error) throw error;
+        if (!data || data.length === 0) return res.status(404).json({ error: 'Blog post not found' });
+        return res.json({ message: 'Successfully deleted blog post' });
+      } catch (e) {
+        console.error('Supabase delete blog error, falling back to local file:', e);
+      }
+    }
     const blogs = await getBlogs();
     const filteredBlogs = blogs.filter((b: any) => b.id !== id);
     if (filteredBlogs.length === blogs.length) {
@@ -308,6 +352,15 @@ async function startServer() {
 
   // Get all projects
   app.get("/api/projects", async (req, res) => {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('projects').select('*').order('id', { ascending: false });
+        if (error) throw error;
+        return res.json(data || []);
+      } catch (e) {
+        console.error('Supabase fetch projects error, falling back to local file:', e);
+      }
+    }
     const projects = await getProjects();
     res.json(projects);
   });
@@ -318,7 +371,6 @@ async function startServer() {
     if (!category || !title || !description) {
       return res.status(400).json({ error: "Category, title, and description are required" });
     }
-    const projects = await getProjects();
     const newProject = {
       id: Date.now().toString(),
       category,
@@ -328,6 +380,16 @@ async function startServer() {
       type: type || "VIEW PROJECT",
       draft: !!draft
     };
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('projects').insert([newProject]).select();
+        if (error) throw error;
+        return res.status(201).json((data && data[0]) || newProject);
+      } catch (e) {
+        console.error('Supabase insert project error, falling back to local file:', e);
+      }
+    }
+    const projects = await getProjects();
     projects.unshift(newProject);
     const success = await saveProjects(projects);
     if (success) {
@@ -341,6 +403,23 @@ async function startServer() {
   app.put("/api/projects/:id", requireAuth, async (req, res) => {
     const { id } = req.params;
     const { category, title, description, link, type, draft } = req.body;
+    if (supabase) {
+      try {
+        const updates: any = {};
+        if (category !== undefined) updates.category = category;
+        if (title !== undefined) updates.title = title;
+        if (description !== undefined) updates.description = description;
+        if (link !== undefined) updates.link = link;
+        if (type !== undefined) updates.type = type;
+        if (draft !== undefined) updates.draft = !!draft;
+        const { data, error } = await supabase.from('projects').update(updates).eq('id', id).select();
+        if (error) throw error;
+        if (!data || data.length === 0) return res.status(404).json({ error: 'Project not found' });
+        return res.json(data[0]);
+      } catch (e) {
+        console.error('Supabase update project error, falling back to local file:', e);
+      }
+    }
     const projects = await getProjects();
     const idx = projects.findIndex((p: any) => p.id === id);
     if (idx === -1) {
@@ -366,6 +445,16 @@ async function startServer() {
   // Delete a project
   app.delete("/api/projects/:id", requireAuth, async (req, res) => {
     const { id } = req.params;
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('projects').delete().eq('id', id).select();
+        if (error) throw error;
+        if (!data || data.length === 0) return res.status(404).json({ error: 'Project not found' });
+        return res.json({ message: 'Successfully deleted project' });
+      } catch (e) {
+        console.error('Supabase delete project error, falling back to local file:', e);
+      }
+    }
     const projects = await getProjects();
     const filteredProjects = projects.filter((p: any) => p.id !== id);
     if (filteredProjects.length === projects.length) {
@@ -381,6 +470,7 @@ async function startServer() {
 
   //--- VITE / STATIC MIDDLEWARE ---
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
