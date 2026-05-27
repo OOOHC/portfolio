@@ -1040,7 +1040,7 @@ export default function App() {
               e.preventDefault();
               setLinglingClicks((prev) => {
                 const next = prev + 1;
-                if (next >= 5) {
+                if (next >= 10) {
                   setIsLoginModalOpen(true);
                   return 0;
                 }
