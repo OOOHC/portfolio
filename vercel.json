@@ -19,8 +19,7 @@
       "dest": "server.ts"
     },
     {
-      "src": "/(.*\\.(png|jpg|jpeg|webp|svg|ico|gif|css|js|woff|woff2|ttf|eot))",
-      "dest": "/$1"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
