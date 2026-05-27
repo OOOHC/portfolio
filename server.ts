@@ -83,7 +83,7 @@ const DEFAULT_PROJECTS = [
     category: "INTRODUCTION TO ROBOTICS",
     title: "Mobile Robot Assembly & Navigation",
     description: "Assembled a four-wheel mobile robot with Arduino, implementing Python-based navigation algorithms for obstacle avoidance and goal tracking. Achieved high-precision sensing and documented full system performance.",
-    link: "projects/Robotics Lab Report_HeLingling.pdf",
+    link: "/projects/Robotics Lab Report_HeLingling.pdf",
     type: "VIEW PROJECT",
     draft: false
   },
@@ -101,7 +101,7 @@ const DEFAULT_PROJECTS = [
     category: "GAME DESIGN",
     title: "Hunt the Boggle Monster",
     description: "A maze exploration game concept where players collect magical objects and use powers.",
-    link: "projects/Level 5 mini project-Copy3.pdf",
+    link: "/projects/Level 5 mini project-Copy3.pdf",
     type: "OPEN PDF",
     draft: false
   },
@@ -110,7 +110,7 @@ const DEFAULT_PROJECTS = [
     category: "SOFTWARE SPECIFICATION",
     title: "Messaging App Specification",
     description: "Defining requirements, interactions, and system behavior for a messaging platform.",
-    link: "projects/Group1.8_ECS427U_assignment3.pdf",
+    link: "/projects/Group1.8_ECS427U_assignment3.pdf",
     type: "OPEN PDF",
     draft: false
   },
@@ -119,7 +119,7 @@ const DEFAULT_PROJECTS = [
     category: "RESEARCH PRESENTATION",
     title: "Responsible Technology",
     description: "Exploring responsible technology decisions and sustainability in modern computing.",
-    link: "projects/Responsible & Sustainable Presentation.pdf",
+    link: "/projects/Responsible & Sustainable Presentation.pdf",
     type: "OPEN PDF",
     draft: false
   }
