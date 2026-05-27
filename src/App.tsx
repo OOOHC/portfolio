@@ -1,4 +1,5 @@
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import { createClient } from "@supabase/supabase-js";
 import { 
   Search, 
   ArrowUpRight, 
@@ -46,6 +47,19 @@ declare global {
     }
   }
 }
+
+const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL;
+const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
+const supabaseClient = supabaseUrl && supabaseAnonKey
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
+
+const resolveLoginEmail = (username: string) => {
+  if (username === "admin") {
+    return (import.meta as any).env?.VITE_ADMIN_EMAIL || username;
+  }
+  return username;
+};
 
 const SKILL_CATEGORIES = [
   {
@@ -709,6 +723,14 @@ export default function App() {
     }
 
     try {
+      if (supabaseClient) {
+        const { data, error } = await supabaseClient.auth.getUser(token);
+        if (!error && data.user) {
+          setIsAuthenticated(true);
+          return;
+        }
+      }
+
       const res = await fetch("/api/auth/me", {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -735,6 +757,27 @@ export default function App() {
     setLoginError("");
 
     try {
+      if (supabaseClient) {
+        const email = resolveLoginEmail(loginUsername);
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password: loginPassword
+        });
+
+        if (error || !data.session) {
+          setLoginError(error?.message || "Invalid username or password");
+          return;
+        }
+
+        localStorage.setItem("lingling_admin_token", data.session.access_token);
+        setIsAuthenticated(true);
+        setIsLoginModalOpen(false);
+        setIsAdminPanelOpen(true);
+        setLoginUsername("");
+        setLoginPassword("");
+        return;
+      }
+
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
