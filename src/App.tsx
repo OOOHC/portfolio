@@ -254,6 +254,7 @@ const ExperienceCarousel = ({ isDarkMode }: { isDarkMode: boolean }) => {
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const isResettingRef = useRef(false);
+  const isTeleportingRef = useRef(false);
   const currentList = activeTab === 'work' ? TECHNICAL_WORK : VOLUNTARY_EXPERIENCES;
 
   const isLooping = currentList.length > 3;
@@ -313,7 +314,7 @@ const ExperienceCarousel = ({ isDarkMode }: { isDarkMode: boolean }) => {
   }, [isPaused, currentList]);
 
   const handleScroll = () => {
-    if (isPaused || isResettingRef.current) return;
+    if (isPaused || isResettingRef.current || isTeleportingRef.current) return;
     const container = containerRef.current;
     if (!container) return;
     
@@ -339,20 +340,28 @@ const ExperienceCarousel = ({ isDarkMode }: { isDarkMode: boolean }) => {
       // Teleportation logic for infinite loop
       if (closestIdx === 0) {
         // At clone of last item, jump to real last item
+        isTeleportingRef.current = true;
         const realLastIdx = currentList.length;
         const targetItem = items[realLastIdx] as HTMLElement;
         if (targetItem) {
           container.scrollLeft = targetItem.offsetLeft - (container.offsetWidth - targetItem.offsetWidth) / 2;
         }
-        setActiveIdx(currentList.length - 1);
+        requestAnimationFrame(() => {
+          setActiveIdx(currentList.length - 1);
+          isTeleportingRef.current = false;
+        });
       } else if (closestIdx === items.length - 1) {
         // At clone of first item, jump to real first item
+        isTeleportingRef.current = true;
         const realFirstIdx = 1;
         const targetItem = items[realFirstIdx] as HTMLElement;
         if (targetItem) {
           container.scrollLeft = targetItem.offsetLeft - (container.offsetWidth - targetItem.offsetWidth) / 2;
         }
-        setActiveIdx(0);
+        requestAnimationFrame(() => {
+          setActiveIdx(0);
+          isTeleportingRef.current = false;
+        });
       } else {
         setActiveIdx(closestIdx - 1);
       }
