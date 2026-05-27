@@ -1043,7 +1043,7 @@ export default function App() {
           </button>
 
           <a 
-            href="/Ling%20Ling%20He.pdf"
+            href="/resume.pdf"
             target="_blank"
             rel="noopener noreferrer"
             className={`ml-4 px-8 py-2.5 rounded-full text-[14px] font-bold tracking-widest uppercase transition-all hover:translate-y-[-2px] border ${isDarkMode ? 'bg-tech-blue border-tech-blue/50 text-black hover:bg-neutral-950 hover:text-tech-blue shadow-[0_0_20px] shadow-tech-blue/20 hover:shadow-tech-blue/40' : 'bg-[#0a1a14] border-transparent text-white hover:bg-black'}`}
@@ -1061,7 +1061,7 @@ export default function App() {
             {isDarkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
           </button>
           <a 
-            href="/Ling%20Ling%20He.pdf"
+            href="/resume.pdf"
             className={`px-6 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] transition-all uppercase hover:translate-y-[-2px] border ${isDarkMode ? 'bg-tech-blue border-tech-blue/50 text-black hover:bg-neutral-950 hover:text-tech-blue shadow-tech-blue/20 hover:shadow-tech-blue/40' : 'bg-[#0a1a14] border-transparent text-white'}`}
           >
             RESUME
