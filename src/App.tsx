@@ -57,7 +57,7 @@ const SKILL_CATEGORIES = [
     title: "Data & Intelligence",
     skills: [
       { name: "SQL", icon: <img src="/image/database.png" alt="SQL" className="w-9 h-9 object-contain" />, color: "bg-brand-blue shadow-blue-100/50" },
-      { name: "AI Fundamentals", icon: <img src="image/deep-learning.png" alt="AI Fundamentals" className="w-9 h-9 object-contain" />, color: "bg-brand-pink shadow-pink-100/50" },
+      { name: "AI Fundamentals", icon: <img src="/image/deep-learning.png" alt="AI Fundamentals" className="w-9 h-9 object-contain" />, color: "bg-brand-pink shadow-pink-100/50" },
     ]
   },
   {
@@ -1229,7 +1229,7 @@ export default function App() {
                 <div className={`bento-card border shadow-2xl p-2 w-44 md:w-56 rotate-[-4deg] transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-neutral-800' : 'bg-white border-neutral-100 shadow-[0_0_25px_rgba(255,255,255,0.7)]'}`}>
                   <div className="aspect-[4/5] bg-neutral-100 dark:bg-neutral-800 rounded-2xl overflow-hidden mb-3">
                   <img 
-                    src="image\Ling.jpg" 
+                    src="/image/Ling.jpg" 
                     alt="Lingling" 
                     className="w-full h-full object-cover brightness-110"
                     referrerPolicy="no-referrer"
