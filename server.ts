@@ -2,6 +2,13 @@ import express from "express";
 import path from "path";
 import fs from "fs/promises";
 import { createServer as createViteServer } from "vite";
+import { createClient } from "@supabase/supabase-js";
+
+// --- Supabase client (server-side, uses env vars) ---
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 const DEFAULT_POSTS = [
   {
@@ -30,7 +37,6 @@ const DEFAULT_POSTS = [
 const DATA_DIR = path.join(process.cwd(), "data");
 const BLOGS_FILE = path.join(DATA_DIR, "blogs.json");
 
-// Helper to initialize and read/write DB
 async function getBlogs() {
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
@@ -139,43 +145,54 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  // Middleware
   app.use(express.json());
 
-  // Simple token storage/verification helper
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "password123";
-  const AUTH_HEADER_TOKEN = "Bearer secret-lingling-token-2026";
-
-  const requireAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  // --- Auth middleware: verify Supabase JWT token ---
+  const requireAuth = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const authHeader = req.headers.authorization;
-    if (authHeader === AUTH_HEADER_TOKEN) {
-      next();
-    } else {
-      res.status(401).json({ error: "Unauthorized access" });
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
+    const token = authHeader.replace("Bearer ", "");
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error || !data.user) {
+      return res.status(401).json({ error: "Invalid or expired token" });
+    }
+    next();
   };
 
   //--- API ROUTES ---
 
-  // Auth: Login
-  app.post("/api/auth/login", (req, res) => {
+  // Auth: Login with Supabase
+  app.post("/api/auth/login", async (req, res) => {
     const { username, password } = req.body;
-    // Match against user or pre-configured email: llhehe00ll@gmail.com
-    if ((username === "admin" || username === "llhehe00ll@gmail.com") && password === ADMIN_PASSWORD) {
-      res.json({ token: "secret-lingling-token-2026", username });
-    } else {
-      res.status(401).json({ error: "Invalid username or password" });
+    if (!username || !password) {
+      return res.status(400).json({ error: "Username/email and password are required" });
     }
+    // username can be email or "admin" (map to the actual email)
+    const email = username === "admin" ? process.env.ADMIN_EMAIL! : username;
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error || !data.session) {
+      return res.status(401).json({ error: "Invalid username or password" });
+    }
+    res.json({
+      token: data.session.access_token,
+      username: data.user.email
+    });
   });
 
   // Auth: Check status
-  app.get("/api/auth/me", (req, res) => {
+  app.get("/api/auth/me", async (req, res) => {
     const authHeader = req.headers.authorization;
-    if (authHeader === AUTH_HEADER_TOKEN) {
-      res.json({ authenticated: true, username: "llhehe00ll@gmail.com" });
-    } else {
-      res.json({ authenticated: false });
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.json({ authenticated: false });
     }
+    const token = authHeader.replace("Bearer ", "");
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error || !data.user) {
+      return res.json({ authenticated: false });
+    }
+    res.json({ authenticated: true, username: data.user.email?.replace(/@.*/, '') });
   });
 
   // Get all blogs
@@ -190,14 +207,12 @@ async function startServer() {
     if (!title || !description) {
       return res.status(400).json({ error: "Title and description are required" });
     }
-
     const blogs = await getBlogs();
     const formattedDate = new Date().toLocaleDateString("en-US", {
       month: "short",
       day: "2-digit",
       year: "numeric"
     }).toUpperCase();
-
     const newBlog = {
       id: Date.now().toString(),
       date: formattedDate,
@@ -206,10 +221,8 @@ async function startServer() {
       link: link || "#",
       draft: !!draft
     };
-
     blogs.unshift(newBlog);
     const success = await saveBlogs(blogs);
-
     if (success) {
       res.status(201).json(newBlog);
     } else {
@@ -221,14 +234,11 @@ async function startServer() {
   app.put("/api/blogs/:id", requireAuth, async (req, res) => {
     const { id } = req.params;
     const { title, description, link, draft } = req.body;
-
     const blogs = await getBlogs();
     const idx = blogs.findIndex((b: any) => b.id === id);
-
     if (idx === -1) {
       return res.status(404).json({ error: "Blog post not found" });
     }
-
     blogs[idx] = {
       ...blogs[idx],
       title: title || blogs[idx].title,
@@ -236,7 +246,6 @@ async function startServer() {
       link: link || blogs[idx].link,
       draft: draft !== undefined ? !!draft : blogs[idx].draft
     };
-
     const success = await saveBlogs(blogs);
     if (success) {
       res.json(blogs[idx]);
@@ -250,11 +259,9 @@ async function startServer() {
     const { id } = req.params;
     const blogs = await getBlogs();
     const filteredBlogs = blogs.filter((b: any) => b.id !== id);
-
     if (filteredBlogs.length === blogs.length) {
       return res.status(404).json({ error: "Blog post not found" });
     }
-
     const success = await saveBlogs(filteredBlogs);
     if (success) {
       res.json({ message: "Successfully deleted blog post" });
@@ -275,7 +282,6 @@ async function startServer() {
     if (!category || !title || !description) {
       return res.status(400).json({ error: "Category, title, and description are required" });
     }
-
     const projects = await getProjects();
     const newProject = {
       id: Date.now().toString(),
@@ -286,10 +292,8 @@ async function startServer() {
       type: type || "VIEW PROJECT",
       draft: !!draft
     };
-
     projects.unshift(newProject);
     const success = await saveProjects(projects);
-
     if (success) {
       res.status(201).json(newProject);
     } else {
@@ -301,14 +305,11 @@ async function startServer() {
   app.put("/api/projects/:id", requireAuth, async (req, res) => {
     const { id } = req.params;
     const { category, title, description, link, type, draft } = req.body;
-
     const projects = await getProjects();
     const idx = projects.findIndex((p: any) => p.id === id);
-
     if (idx === -1) {
       return res.status(404).json({ error: "Project not found" });
     }
-
     projects[idx] = {
       ...projects[idx],
       category: category || projects[idx].category,
@@ -318,7 +319,6 @@ async function startServer() {
       type: type || projects[idx].type,
       draft: draft !== undefined ? !!draft : projects[idx].draft
     };
-
     const success = await saveProjects(projects);
     if (success) {
       res.json(projects[idx]);
@@ -332,11 +332,9 @@ async function startServer() {
     const { id } = req.params;
     const projects = await getProjects();
     const filteredProjects = projects.filter((p: any) => p.id !== id);
-
     if (filteredProjects.length === projects.length) {
       return res.status(404).json({ error: "Project not found" });
     }
-
     const success = await saveProjects(filteredProjects);
     if (success) {
       res.json({ message: "Successfully deleted project" });
@@ -345,7 +343,7 @@ async function startServer() {
     }
   });
 
-  //--- VITE / STATIC MIDDLWARE ---
+  //--- VITE / STATIC MIDDLEWARE ---
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -368,7 +366,6 @@ async function startServer() {
   return app;
 }
 
-// With an export that Vercel serverless functions can hook into:
 const appPromise = startServer();
 export default async (req: any, res: any) => {
   const app = await appPromise;
