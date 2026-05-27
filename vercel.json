@@ -8,7 +8,9 @@
     {
       "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
   "routes": [
@@ -19,6 +21,10 @@
     {
       "src": "/assets/(.*)",
       "dest": "dist/assets/$1"
+    },
+    {
+      "src": "/image/(.*)",
+      "dest": "dist/image/$1"
     },
     {
       "src": "/(.*)",
