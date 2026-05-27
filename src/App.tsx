@@ -1789,6 +1789,11 @@ export default function App() {
                             Cancel
                           </button>
                         )}
+                        {editingBlogId && (
+                          <button type="button" onClick={() => editingBlogId && handleDeleteBlog(editingBlogId)} className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">
+                            DELETE POST
+                          </button>
+                        )}
                       </div>
                     </form>
                   </div>
@@ -1903,6 +1908,11 @@ export default function App() {
                             Cancel
                           </button>
                         )}
+                          {editingProjectId && (
+                            <button type="button" onClick={() => editingProjectId && handleDeleteProject(editingProjectId)} className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">
+                              DELETE PROJECT
+                            </button>
+                          )}
                       </div>
                     </form>
                   </div>

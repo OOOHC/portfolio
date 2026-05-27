@@ -269,12 +269,17 @@ async function startServer() {
     if (supabase) {
       try {
         const { data, error } = await supabase.from('blogs').insert([newBlog]).select();
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase insert blog error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
         return res.status(201).json((data && data[0]) || newBlog);
-      } catch (e) {
-        console.error('Supabase insert blog error, falling back to local file:', e);
+      } catch (e: any) {
+        console.error('Supabase insert blog unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
       }
     }
+    // Fallback to local file storage only when Supabase is not configured
     const blogs = await getBlogs();
     blogs.unshift(newBlog);
     const success = await saveBlogs(blogs);
@@ -297,11 +302,15 @@ async function startServer() {
         if (link !== undefined) updates.link = link;
         if (draft !== undefined) updates.draft = !!draft;
         const { data, error } = await supabase.from('blogs').update(updates).eq('id', id).select();
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase update blog error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
         if (!data || data.length === 0) return res.status(404).json({ error: 'Blog post not found' });
         return res.json(data[0]);
-      } catch (e) {
-        console.error('Supabase update blog error, falling back to local file:', e);
+      } catch (e: any) {
+        console.error('Supabase update blog unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
       }
     }
     const blogs = await getBlogs();
@@ -330,11 +339,15 @@ async function startServer() {
     if (supabase) {
       try {
         const { data, error } = await supabase.from('blogs').delete().eq('id', id).select();
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase delete blog error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
         if (!data || data.length === 0) return res.status(404).json({ error: 'Blog post not found' });
         return res.json({ message: 'Successfully deleted blog post' });
-      } catch (e) {
-        console.error('Supabase delete blog error, falling back to local file:', e);
+      } catch (e: any) {
+        console.error('Supabase delete blog unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
       }
     }
     const blogs = await getBlogs();
@@ -355,10 +368,14 @@ async function startServer() {
     if (supabase) {
       try {
         const { data, error } = await supabase.from('projects').select('*').order('id', { ascending: false });
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase fetch projects error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
         return res.json(data || []);
-      } catch (e) {
-        console.error('Supabase fetch projects error, falling back to local file:', e);
+      } catch (e: any) {
+        console.error('Supabase fetch projects unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
       }
     }
     const projects = await getProjects();
@@ -383,10 +400,14 @@ async function startServer() {
     if (supabase) {
       try {
         const { data, error } = await supabase.from('projects').insert([newProject]).select();
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase insert project error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
         return res.status(201).json((data && data[0]) || newProject);
-      } catch (e) {
-        console.error('Supabase insert project error, falling back to local file:', e);
+      } catch (e: any) {
+        console.error('Supabase insert project unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
       }
     }
     const projects = await getProjects();
@@ -413,11 +434,15 @@ async function startServer() {
         if (type !== undefined) updates.type = type;
         if (draft !== undefined) updates.draft = !!draft;
         const { data, error } = await supabase.from('projects').update(updates).eq('id', id).select();
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase update project error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
         if (!data || data.length === 0) return res.status(404).json({ error: 'Project not found' });
         return res.json(data[0]);
-      } catch (e) {
-        console.error('Supabase update project error, falling back to local file:', e);
+      } catch (e: any) {
+        console.error('Supabase update project unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
       }
     }
     const projects = await getProjects();
@@ -448,11 +473,15 @@ async function startServer() {
     if (supabase) {
       try {
         const { data, error } = await supabase.from('projects').delete().eq('id', id).select();
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase delete project error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
         if (!data || data.length === 0) return res.status(404).json({ error: 'Project not found' });
         return res.json({ message: 'Successfully deleted project' });
-      } catch (e) {
-        console.error('Supabase delete project error, falling back to local file:', e);
+      } catch (e: any) {
+        console.error('Supabase delete project unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
       }
     }
     const projects = await getProjects();
