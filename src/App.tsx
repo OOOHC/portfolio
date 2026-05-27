@@ -39,31 +39,31 @@ const SKILL_CATEGORIES = [
   {
     title: "Programming Languages",
     skills: [
-      { name: "Java", icon: <img src="/public/image/java.png" alt="Java" className="w-9 h-9 object-contain" />, color: "bg-brand-green shadow-green-100/50" },
-      { name: "JavaScript", icon: <img src="/public/image/js.png" alt="JavaScript" className="w-9 h-9 object-contain" />, color: "bg-brand-pink shadow-pink-100/50" },
-      { name: "Python", icon: <img src="/public/image/python.png" alt="Python" className="w-9 h-9 object-contain" />, color: "bg-brand-blue shadow-blue-100/50" },
-      { name: "PHP", icon: <img src="/public/image/php.png" alt="PHP" className="w-9 h-9 object-contain" />, color: "bg-brand-green shadow-green-100/50" },
+      { name: "Java", icon: <img src="/image/java.png" alt="Java" className="w-9 h-9 object-contain" />, color: "bg-brand-green shadow-green-100/50" },
+      { name: "JavaScript", icon: <img src="/image/js.png" alt="JavaScript" className="w-9 h-9 object-contain" />, color: "bg-brand-pink shadow-pink-100/50" },
+      { name: "Python", icon: <img src="/image/python.png" alt="Python" className="w-9 h-9 object-contain" />, color: "bg-brand-blue shadow-blue-100/50" },
+      { name: "PHP", icon: <img src="/image/php.png" alt="PHP" className="w-9 h-9 object-contain" />, color: "bg-brand-green shadow-green-100/50" },
     ]
   },
   {
     title: "Web Development",
     skills: [
-      { name: "React", icon: <img src="/public/image/react.png" alt="React" className="w-9 h-9 object-contain" />, color: "bg-brand-purple shadow-purple-100/50" },
-      { name: "HTML", icon: <img src="/public/image/html-5.png" alt="HTML" className="w-9 h-9 object-contain" />, color: "bg-brand-orange shadow-orange-100/50" },
-      { name: "CSS", icon: <img src="/public/image/css-3.png" alt="CSS" className="w-9 h-9 object-contain" />, color: "bg-brand-purple shadow-purple-100/50" },
+      { name: "React", icon: <img src="/image/react.png" alt="React" className="w-9 h-9 object-contain" />, color: "bg-brand-purple shadow-purple-100/50" },
+      { name: "HTML", icon: <img src="/image/html-5.png" alt="HTML" className="w-9 h-9 object-contain" />, color: "bg-brand-orange shadow-orange-100/50" },
+      { name: "CSS", icon: <img src="/image/css-3.png" alt="CSS" className="w-9 h-9 object-contain" />, color: "bg-brand-purple shadow-purple-100/50" },
     ]
   },
   {
     title: "Data & Intelligence",
     skills: [
-      { name: "SQL", icon: <img src="/public/image/database.png" alt="SQL" className="w-9 h-9 object-contain" />, color: "bg-brand-blue shadow-blue-100/50" },
-      { name: "AI Fundamentals", icon: <img src="/public/image/deep-learning.png" alt="AI Fundamentals" className="w-9 h-9 object-contain" />, color: "bg-brand-pink shadow-pink-100/50" },
+      { name: "SQL", icon: <img src="/image/database.png" alt="SQL" className="w-9 h-9 object-contain" />, color: "bg-brand-blue shadow-blue-100/50" },
+      { name: "AI Fundamentals", icon: <img src="/image/deep-learning.png" alt="AI Fundamentals" className="w-9 h-9 object-contain" />, color: "bg-brand-pink shadow-pink-100/50" },
     ]
   },
   {
     title: "Infrastructure & OS",
     skills: [
-      { name: "Linux", icon: <img src="/public/image/linux.png" alt="Linux" className="w-9 h-9 object-contain" />, color: "bg-brand-blue shadow-blue-100/50" },
+      { name: "Linux", icon: <img src="/image/linux.png" alt="Linux" className="w-9 h-9 object-contain" />, color: "bg-brand-blue shadow-blue-100/50" },
     ]
   }
 ];
@@ -1229,7 +1229,7 @@ export default function App() {
                 <div className={`bento-card border shadow-2xl p-2 w-44 md:w-56 rotate-[-4deg] transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-neutral-800' : 'bg-white border-neutral-100 shadow-[0_0_25px_rgba(255,255,255,0.7)]'}`}>
                   <div className="aspect-[4/5] bg-neutral-100 dark:bg-neutral-800 rounded-2xl overflow-hidden mb-3">
                   <img 
-                    src="/public/image/Ling.jpg" 
+                    src="/image/Ling.jpg" 
                     alt="Lingling" 
                     className="w-full h-full object-cover brightness-110"
                     referrerPolicy="no-referrer"
