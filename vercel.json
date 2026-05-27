@@ -19,13 +19,6 @@
       "dest": "server.ts"
     },
     {
-      "src": "/resume.pdf",
-      "dest": "/resume.pdf",
-      "headers": {
-        "Content-Type": "application/pdf"
-      }
-    },
-    {
       "src": "/image/(.*)",
       "dest": "/image/$1"
     },
