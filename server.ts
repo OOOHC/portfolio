@@ -5,10 +5,21 @@ import { createServer as createViteServer } from "vite";
 import { createClient } from "@supabase/supabase-js";
 
 // --- Supabase client (server-side, uses env vars) ---
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = supabaseUrl && supabaseServiceRoleKey
+  ? createClient(supabaseUrl, supabaseServiceRoleKey)
+  : null;
+
+function getSupabaseClient(res: express.Response) {
+  if (!supabase) {
+    res.status(500).json({
+      error: "Server is missing Supabase env vars: SUPABASE_URL and/or SUPABASE_SERVICE_ROLE_KEY",
+    });
+    return null;
+  }
+  return supabase;
+}
 
 const DEFAULT_POSTS = [
   {
@@ -149,12 +160,16 @@ async function startServer() {
 
   // --- Auth middleware: verify Supabase JWT token ---
   const requireAuth = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const client = getSupabaseClient(res);
+    if (!client) {
+      return;
+    }
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     const token = authHeader.replace("Bearer ", "");
-    const { data, error } = await supabase.auth.getUser(token);
+    const { data, error } = await client.auth.getUser(token);
     if (error || !data.user) {
       return res.status(401).json({ error: "Invalid or expired token" });
     }
@@ -169,9 +184,16 @@ async function startServer() {
     if (!username || !password) {
       return res.status(400).json({ error: "Username/email and password are required" });
     }
+    const client = getSupabaseClient(res);
+    if (!client) {
+      return;
+    }
     // username can be email or "admin" (map to the actual email)
-    const email = username === "admin" ? process.env.ADMIN_EMAIL! : username;
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const email = username === "admin" ? process.env.ADMIN_EMAIL : username;
+    if (username === "admin" && !email) {
+      return res.status(500).json({ error: "Server is missing ADMIN_EMAIL" });
+    }
+    const { data, error } = await client.auth.signInWithPassword({ email, password });
     if (error || !data.session) {
       return res.status(401).json({ error: "Invalid username or password" });
     }
@@ -183,12 +205,16 @@ async function startServer() {
 
   // Auth: Check status
   app.get("/api/auth/me", async (req, res) => {
+    const client = getSupabaseClient(res);
+    if (!client) {
+      return;
+    }
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.json({ authenticated: false });
     }
     const token = authHeader.replace("Bearer ", "");
-    const { data, error } = await supabase.auth.getUser(token);
+    const { data, error } = await client.auth.getUser(token);
     if (error || !data.user) {
       return res.json({ authenticated: false });
     }
