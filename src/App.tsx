@@ -61,6 +61,64 @@ const resolveLoginEmail = (username: string) => {
   return username;
 };
 
+type ExperienceType = "work" | "voluntary";
+type ExperienceIconKey = "briefcase" | "camera" | "heart" | "cpu" | "trophy" | "globe" | "code" | "monitor";
+
+type ExperienceRecord = {
+  id: string;
+  title: string;
+  role: string;
+  period: string;
+  type: ExperienceType;
+  iconKey: ExperienceIconKey;
+  bullets: string[];
+  draft?: boolean;
+};
+
+const EXPERIENCE_TYPE_OPTIONS: Array<{ label: string; value: ExperienceType }> = [
+  { label: "Academic & Technical", value: "work" },
+  { label: "Voluntary Work", value: "voluntary" },
+];
+
+const EXPERIENCE_ICON_OPTIONS: Array<{ label: string; value: ExperienceIconKey }> = [
+  { label: "Briefcase (Professional)", value: "briefcase" },
+  { label: "Camera", value: "camera" },
+  { label: "Heart", value: "heart" },
+  { label: "CPU", value: "cpu" },
+  { label: "Trophy", value: "trophy" },
+  { label: "Globe", value: "globe" },
+  { label: "Code", value: "code" },
+  { label: "Monitor", value: "monitor" },
+];
+
+const getExperienceIcon = (iconKey: ExperienceIconKey) => {
+  switch (iconKey) {
+    case "camera":
+      return <Camera className="w-4 h-4" />;
+    case "heart":
+      return <Heart className="w-4 h-4" />;
+    case "cpu":
+      return <Cpu className="w-4 h-4" />;
+    case "trophy":
+      return <Trophy className="w-4 h-4" />;
+    case "globe":
+      return <Globe className="w-4 h-4" />;
+    case "code":
+      return <Code2 className="w-4 h-4" />;
+    case "monitor":
+      return <Monitor className="w-4 h-4" />;
+    case "briefcase":
+    default:
+      return <Briefcase className="w-4 h-4" />;
+  }
+};
+
+const splitBulletList = (value: string) =>
+  value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
 const SKILL_CATEGORIES = [
   {
     title: "Programming Languages",
@@ -132,73 +190,6 @@ const PROJECTS = [
   }
 ];
 
-const TECHNICAL_WORK = [
-  {
-    title: "T4",
-    role: "Boba Barista",
-    period: "Mar 2025",
-    bullets: [
-      "Collaborated with team members during peak periods to support efficient operations",
-      "Prepared and served Urber Eats deliveries",
-      "Maintained high quality hygiene and safety standards"
-    ],
-    icon: <Cpu className="w-4 h-4" />
-  }
-];
-
-const VOLUNTARY_EXPERIENCES = [
-  {
-    title: "World Table Tennis London 2026",
-    role: "FAN ZONE ACTIVATOR, MEDIA ASSISTANT, ANTI-DOPING ASSISTANT",
-    period: "MAY 2026",
-    bullets: [
-      "Supported the setup and operation of the fan engagement zone, ensuring a smooth and engaging visitor experience",
-      "Coordinated with media personnel and publishers to facilitate efficient content distribution and event coverage",
-      "Assisted in the implementation of anti-doping procedures, maintaining compliance with official regulations and protocols"
-    ],
-    icon: <Briefcase className="w-4 h-4" />
-  },
-  {
-    title: "Chinese New Year & Lantern Festival",
-    role: "EVENT PHOTOGRAPHER",
-    period: "FEB, MAR 2026",
-    bullets: [
-      "Captured high-quality event photography featured on official organiser media channels and People's Daily Online"
-    ],
-    icon: <Camera className="w-4 h-4" />
-  },
-  {
-    title: "Thames Hospice",
-    role: "RETAIL VOLUNTEER",
-    period: "Feb 2024",
-    bullets: [
-      "Welcomed and assisted customers in a professional environment.",
-      "Shared charity information and encouraged community support.",
-      "Restocked and presented the shop floor."
-    ],
-    icon: <Briefcase className="w-4 h-4" />
-  },
-  {
-    title: "Barnardo's",
-    role: "RETAIL VOLUNTEER",
-    period: "Feb 2023",
-    bullets: [
-      "Sorted and organised donated items for sale.",
-      "Personalised assistance for customers finding items."
-    ],
-    icon: <Heart className="w-4 h-4" />
-  },
-  {
-    title: "British Heart Foundation",
-    role: "RETAIL VOLUNTEER",
-    period: "Feb 2022",
-    bullets: [
-      "Responded to questions and supported daily retail operations."
-    ],
-    icon: <Heart className="w-4 h-4" />
-  }
-];
-
 const POSTS = [
   {
     date: "OCT 24, 2024",
@@ -262,14 +253,22 @@ const WorkStatus = ({ isDarkMode }: { isDarkMode: boolean }) => (
   </div>
 );
 
-const ExperienceCarousel = ({ isDarkMode }: { isDarkMode: boolean }) => {
+const ExperienceCarousel = ({
+  isDarkMode,
+  workExperiences,
+  voluntaryExperiences,
+}: {
+  isDarkMode: boolean;
+  workExperiences: ExperienceRecord[];
+  voluntaryExperiences: ExperienceRecord[];
+}) => {
   const [activeTab, setActiveTab] = useState<'work' | 'voluntary'>('work');
   const [activeIdx, setActiveIdx] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const isResettingRef = useRef(false);
   const isTeleportingRef = useRef(false);
-  const currentList = activeTab === 'work' ? TECHNICAL_WORK : VOLUNTARY_EXPERIENCES;
+  const currentList = activeTab === 'work' ? workExperiences : voluntaryExperiences;
 
   const isLooping = currentList.length > 3;
 
@@ -488,7 +487,7 @@ const ExperienceCarousel = ({ isDarkMode }: { isDarkMode: boolean }) => {
                     ? 'bg-tech-blue/10 text-tech-blue drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]' 
                     : 'bg-neutral-50 text-[#4d8b8b]'
                 }`}>
-                  {(exp.icon)}
+                  {getExperienceIcon(exp.iconKey)}
                 </div>
                 <div className="space-y-8">
                   <div>
@@ -595,7 +594,7 @@ const ExperienceCarousel = ({ isDarkMode }: { isDarkMode: boolean }) => {
                         ? 'bg-tech-blue/10 text-tech-blue drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]' 
                         : 'bg-neutral-50 text-[#4d8b8b]'
                       }`}>
-                      {exp.icon}
+                      {getExperienceIcon(exp.iconKey)}
                     </div>
                     <div className="space-y-8">
                       <div>
@@ -660,7 +659,10 @@ export default function App() {
   const [isLoadingBlogs, setIsLoadingBlogs] = useState(true);
   const [projectsList, setProjectsList] = useState<any[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
-  const [activeAdminTab, setActiveAdminTab] = useState<'blogs' | 'projects'>('blogs');
+  const [experiences, setExperiences] = useState<ExperienceRecord[]>([]);
+  const [isLoadingExperiences, setIsLoadingExperiences] = useState(true);
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [activeAdminTab, setActiveAdminTab] = useState<'blogs' | 'projects' | 'experiences' | 'resume'>('blogs');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
@@ -680,6 +682,16 @@ export default function App() {
   const [projectFormType, setProjectFormType] = useState("VIEW PROJECT");
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [projectFormError, setProjectFormError] = useState("");
+  const [experienceFormTitle, setExperienceFormTitle] = useState("");
+  const [experienceFormRole, setExperienceFormRole] = useState("");
+  const [experienceFormPeriod, setExperienceFormPeriod] = useState("");
+  const [experienceFormType, setExperienceFormType] = useState<ExperienceType>("work");
+  const [experienceFormIconKey, setExperienceFormIconKey] = useState<ExperienceIconKey>("briefcase");
+  const [experienceFormBullets, setExperienceFormBullets] = useState("");
+  const [editingExperienceId, setEditingExperienceId] = useState<string | null>(null);
+  const [experienceFormError, setExperienceFormError] = useState("");
+  const [resumeFormUrl, setResumeFormUrl] = useState("");
+  const [resumeFormError, setResumeFormError] = useState("");
 
   const fetchBlogs = useCallback(async () => {
     setIsLoadingBlogs(true);
@@ -712,6 +724,41 @@ export default function App() {
       setProjectsList(PROJECTS);
     } finally {
       setIsLoadingProjects(false);
+    }
+  }, []);
+
+  const fetchExperiences = useCallback(async () => {
+    setIsLoadingExperiences(true);
+    try {
+      const res = await fetch("/api/experiences");
+      if (res.ok) {
+        setExperiences(await res.json());
+      } else {
+        setExperiences([]);
+      }
+    } catch (e) {
+      console.error("Failed to fetch experiences:", e);
+      setExperiences([]);
+    } finally {
+      setIsLoadingExperiences(false);
+    }
+  }, []);
+
+  const fetchResume = useCallback(async () => {
+    try {
+      const res = await fetch("/api/resume");
+      if (res.ok) {
+        const data = await res.json();
+        setResumeUrl(data.url || "");
+        setResumeFormUrl(data.url || "");
+      } else {
+        setResumeUrl("");
+        setResumeFormUrl("");
+      }
+    } catch (e) {
+      console.error("Failed to fetch resume url:", e);
+      setResumeUrl("");
+      setResumeFormUrl("");
     }
   }, []);
 
@@ -749,8 +796,10 @@ export default function App() {
   useEffect(() => {
     fetchBlogs();
     fetchProjects();
+    fetchExperiences();
+    fetchResume();
     checkAuth();
-  }, [fetchBlogs, fetchProjects, checkAuth]);
+  }, [fetchBlogs, fetchProjects, fetchExperiences, fetchResume, checkAuth]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -971,6 +1020,130 @@ export default function App() {
     setProjectFormType("VIEW PROJECT");
     setProjectFormError("");
   };
+
+  const handleCreateOrUpdateExperience = async (e: React.FormEvent, isDraft: boolean = false) => {
+    e.preventDefault();
+    setExperienceFormError("");
+
+    const bullets = splitBulletList(experienceFormBullets);
+    if (!experienceFormTitle.trim() || !experienceFormRole.trim() || bullets.length === 0) {
+      setExperienceFormError("Title, role, and at least one bullet are required");
+      return;
+    }
+
+    const token = localStorage.getItem("lingling_admin_token");
+    if (!token) {
+      setExperienceFormError("Not authenticated");
+      return;
+    }
+
+    const url = editingExperienceId ? `/api/experiences/${editingExperienceId}` : "/api/experiences";
+    const method = editingExperienceId ? "PUT" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: experienceFormTitle,
+          role: experienceFormRole,
+          period: experienceFormPeriod,
+          type: experienceFormType,
+          iconKey: experienceFormIconKey,
+          bullets,
+          draft: isDraft
+        })
+      });
+
+      if (res.ok) {
+        clearExperienceForm();
+        fetchExperiences();
+      } else {
+        const err = await res.json();
+        setExperienceFormError(err.error || "Failed to save experience");
+      }
+    } catch {
+      setExperienceFormError("Network error occurred");
+    }
+  };
+
+  const handleDeleteExperience = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this experience?")) return;
+    const token = localStorage.getItem("lingling_admin_token");
+    if (!token) return;
+
+    try {
+      const res = await fetch(`/api/experiences/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        fetchExperiences();
+      } else {
+        alert("Failed to delete experience");
+      }
+    } catch {
+      alert("Network error occurred");
+    }
+  };
+
+  const startEditExperience = (experience: ExperienceRecord) => {
+    setEditingExperienceId(experience.id);
+    setExperienceFormTitle(experience.title);
+    setExperienceFormRole(experience.role);
+    setExperienceFormPeriod(experience.period || "");
+    setExperienceFormType(experience.type);
+    setExperienceFormIconKey(experience.iconKey);
+    setExperienceFormBullets((experience.bullets || []).join("\n"));
+    setActiveAdminTab("experiences");
+  };
+
+  const clearExperienceForm = () => {
+    setEditingExperienceId(null);
+    setExperienceFormTitle("");
+    setExperienceFormRole("");
+    setExperienceFormPeriod("");
+    setExperienceFormType("work");
+    setExperienceFormIconKey("briefcase");
+    setExperienceFormBullets("");
+    setExperienceFormError("");
+  };
+
+  const handleSaveResume = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResumeFormError("");
+
+    const token = localStorage.getItem("lingling_admin_token");
+    if (!token) {
+      setResumeFormError("Not authenticated");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/resume", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ url: resumeFormUrl })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setResumeUrl(data.url || resumeFormUrl);
+        setResumeFormUrl(data.url || resumeFormUrl);
+      } else {
+        const err = await res.json();
+        setResumeFormError(err.error || "Failed to save resume link");
+      }
+    } catch {
+      setResumeFormError("Network error occurred");
+    }
+  };
   
   // Parallax interaction values
   const mouseX = useMotionValue(0);
@@ -1023,6 +1196,10 @@ export default function App() {
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [mouseX, mouseY]);
+
+  const publishedExperiences = experiences.filter((experience) => !experience.draft);
+  const workExperiences = publishedExperiences.filter((experience) => experience.type === "work");
+  const voluntaryExperiences = publishedExperiences.filter((experience) => experience.type === "voluntary");
 
   return (
     <div className={`min-h-screen selection:bg-brand-pink/40 bg-brand-cream text-neutral-900 overflow-x-hidden transition-colors duration-500 ${isDarkMode ? 'dark bg-neutral-950 text-neutral-100' : ''}`}>
@@ -1095,7 +1272,7 @@ export default function App() {
           </button>
 
           <a 
-            href="/resume.pdf"
+            href={resumeUrl || "#"}
             target="_blank"
             rel="noopener noreferrer"
             className={`ml-4 px-8 py-2.5 rounded-full text-[14px] font-bold tracking-widest uppercase transition-all hover:translate-y-[-2px] border ${isDarkMode ? 'bg-tech-blue border-tech-blue/50 text-black hover:bg-neutral-950 hover:text-tech-blue shadow-[0_0_20px] shadow-tech-blue/20 hover:shadow-tech-blue/40' : 'bg-[#0a1a14] border-transparent text-white hover:bg-black'}`}
@@ -1113,7 +1290,7 @@ export default function App() {
             {isDarkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
           </button>
           <a 
-            href="/resume.pdf"
+            href={resumeUrl || "#"}
             className={`px-6 py-2 rounded-full text-[10px] font-bold tracking-[0.2em] transition-all uppercase hover:translate-y-[-2px] border ${isDarkMode ? 'bg-tech-blue border-tech-blue/50 text-black hover:bg-neutral-950 hover:text-tech-blue shadow-tech-blue/20 hover:shadow-tech-blue/40' : 'bg-[#0a1a14] border-transparent text-white'}`}
           >
             RESUME
@@ -1507,7 +1684,7 @@ export default function App() {
               <h2 className={`text-4xl md:text-6xl font-hand leading-tight font-medium max-w-2xl mx-auto transition-colors duration-500 ${isDarkMode ? 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.25)]' : 'text-neutral-900'}`}>Experiences</h2>
             </div>
             
-            <ExperienceCarousel isDarkMode={isDarkMode} />
+            <ExperienceCarousel isDarkMode={isDarkMode} workExperiences={workExperiences} voluntaryExperiences={voluntaryExperiences} />
           </section>
 
           <section id="education" className="space-y-12 w-full pt-4">
@@ -1692,112 +1869,39 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="flex mb-6 font-mono text-s gap-4">
-                <button
-                  onClick={() => {
-                    setActiveAdminTab("blogs");
-                    clearProjectForm();
-                  }}
-                  className={`pb-2 px-1 border-b-2 transition-all font-bold 
-                    ${activeAdminTab === "blogs" 
-                      ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") 
-                      : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}
-                >
-                  MANAGE BLOG POSTS
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveAdminTab("projects");
-                    clearBlogForm();
-                  }}
-                  className={`pb-2 px-1 border-b-2 transition-all font-bold 
-                    ${activeAdminTab === "projects" 
-                      ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") 
-                      : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}
-                >
-                  MANAGE PROJECTS
-                </button>
+              <div className="flex flex-wrap mb-6 font-mono text-s gap-4">
+                <button onClick={() => { setActiveAdminTab("blogs"); clearProjectForm(); clearExperienceForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "blogs" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE BLOG POSTS</button>
+                <button onClick={() => { setActiveAdminTab("projects"); clearBlogForm(); clearExperienceForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "projects" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE PROJECTS</button>
+                <button onClick={() => { setActiveAdminTab("experiences"); clearBlogForm(); clearProjectForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "experiences" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE EXPERIENCES</button>
+                <button onClick={() => { setActiveAdminTab("resume"); clearBlogForm(); clearProjectForm(); clearExperienceForm(); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "resume" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE RESUME</button>
               </div>
 
               {activeAdminTab === "blogs" ? (
                 <>
-                  <div className={`p-6 rounded-2xl border mb-6 transition-all duration-300
-                    ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
-                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 
-                      ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>
-                      {editingBlogId ? "EDIT POST ENTRY" : "WRITE NEW BLOG POST"}
-                    </h4>
-
+                  <div className={`p-6 rounded-2xl border mb-6 transition-all duration-300 ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
+                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>{editingBlogId ? "EDIT POST ENTRY" : "WRITE NEW BLOG POST"}</h4>
                     <form onSubmit={handleCreateOrUpdateBlog} className="space-y-3">
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Title</label>
-                        <input
-                          type="text"
-                          required
-                          placeholder="Future of Intelligence..."
-                          value={blogFormTitle}
-                          onChange={(e) => setBlogFormTitle(e.target.value)}
-                          className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none
-                            ${isDarkMode 
-                              ? 'bg-neutral-950 border-neutral-800 text-white' 
-                              : 'bg-white border-neutral-200 text-neutral-950'}`}
-                        />
+                        <input type="text" required placeholder="Future of Intelligence..." value={blogFormTitle} onChange={(e) => setBlogFormTitle(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Description</label>
-                        <textarea
-                          required
-                          rows={3}
-                          placeholder="Enter a captivating abstract summary..."
-                          value={blogFormDescription}
-                          onChange={(e) => setBlogFormDescription(e.target.value)}
-                          className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-sans focus:outline-none
-                            ${isDarkMode 
-                              ? 'bg-neutral-950 border-neutral-800 text-white' 
-                              : 'bg-white border-neutral-200 text-neutral-950'}`}
-                        />
+                        <textarea required rows={3} placeholder="Enter a captivating abstract summary..." value={blogFormDescription} onChange={(e) => setBlogFormDescription(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-sans focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Reference / Read More Link (Optional)</label>
-                        <input
-                          type="text"
-                          placeholder="https://"
-                          value={blogFormLink}
-                          onChange={(e) => setBlogFormLink(e.target.value)}
-                          className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none
-                            ${isDarkMode 
-                              ? 'bg-neutral-950 border-neutral-800 text-white' 
-                              : 'bg-white border-neutral-200 text-neutral-950'}`}
-                        />
+                        <input type="text" placeholder="https://" value={blogFormLink} onChange={(e) => setBlogFormLink(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                       </div>
-
                       {blogFormError && <div className="text-xs font-mono text-red-500">{blogFormError}</div>}
-
                       <div className="flex flex-wrap items-center gap-3 pt-2">
-                        <button type="submit" className={`px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all
-                            ${isDarkMode 
-                              ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(188,0,255,0.25)] hover:shadow-[0_0_25px_rgba(188,0,255,0.45)]' 
-                              : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}
-                        >
-                          {editingBlogId ? "PUBLISH UPDATE" : "PUBLISH POST"}
-                        </button>
-                        <button type="button" onClick={(e) => handleCreateOrUpdateBlog(e, true)} className="px-5 py-2.5 bg-neutral-600 hover:bg-neutral-700 text-white font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all">
-                          {editingBlogId ? "SAVE AS DRAFT" : "SAVE DRAFT"}
-                        </button>
-                        {editingBlogId && (
-                          <button type="button" onClick={clearBlogForm} className="px-4 py-2.5 border border-neutral-300 dark:border-neutral-700 text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">
-                            Cancel
-                          </button>
-                        )}
-                        {editingBlogId && (
-                          <button type="button" onClick={() => editingBlogId && handleDeleteBlog(editingBlogId)} className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">
-                            DELETE POST
-                          </button>
-                        )}
+                        <button type="submit" className={`px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${isDarkMode ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(188,0,255,0.25)] hover:shadow-[0_0_25px_rgba(188,0,255,0.45)]' : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}>{editingBlogId ? "PUBLISH UPDATE" : "PUBLISH POST"}</button>
+                        <button type="button" onClick={(e) => handleCreateOrUpdateBlog(e, true)} className="px-5 py-2.5 bg-neutral-600 hover:bg-neutral-700 text-white font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all">{editingBlogId ? "SAVE AS DRAFT" : "SAVE DRAFT"}</button>
+                        {editingBlogId && <button type="button" onClick={clearBlogForm} className="px-4 py-2.5 border border-neutral-300 dark:border-neutral-700 text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">Cancel</button>}
+                        {editingBlogId && <button type="button" onClick={() => editingBlogId && handleDeleteBlog(editingBlogId)} className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">DELETE POST</button>}
                       </div>
                     </form>
                   </div>
-
                   <div>
                     <h4 className="text-xs font-bold tracking-widest uppercase font-mono mb-4 text-neutral-400">MANAGE RECENT ENTRIES</h4>
                     <div className="space-y-3">
@@ -1805,118 +1909,54 @@ export default function App() {
                         <div key={b.id || b.title} className={`px-4 py-2 rounded-xl border flex items-center justify-between gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white' : 'bg-neutral-50 border-neutral-200 text-neutral-950'}`}>
                           <div className="overflow-hidden">
                             <span className="text-[11px] font-mono text-neutral-400 uppercase tracking-widest mr-2">{b.date}</span>
-                            <h5 className="font-bold text-[15px] truncate flex items-center gap-2">
-                              {b.title}
-                              {b.draft && <span className={`px-1.5 py-0.5 text-[14px] font-mono tracking-widest uppercase font-bold rounded scale-90 origin-left border
-                                  ${isDarkMode 
-                                    ? 'text-tech-blue bg-tech-blue/10 border-tech-blue/30' 
-                                    : 'text-brand-sage-600 bg-brand-sage-50 border-brand-sage-200'}`}>DRAFT</span>}
-                            </h5>
+                            <h5 className="font-bold text-[15px] truncate flex items-center gap-2">{b.title}{b.draft && <span className={`px-1.5 py-0.5 text-[14px] font-mono tracking-widest uppercase font-bold rounded scale-90 origin-left border ${isDarkMode ? 'text-tech-blue bg-tech-blue/10 border-tech-blue/30' : 'text-brand-sage-600 bg-brand-sage-50 border-brand-sage-200'}`}>DRAFT</span>}</h5>
                             <p className="text-[13px] text-neutral-400 truncate max-w-md">{b.description}</p>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
-                            <button onClick={() => startEditBlog(b)} className={`p-1.5 rounded-lg border transition-all duration-200 outline-none
-                                ${isDarkMode 
-                                  ? 'bg-tech-blue/10 text-tech-blue border-tech-blue/20 hover:bg-tech-blue hover:text-black hover:border-tech-blue hover:shadow-[0_0_10px_rgba(0,240,255,0.4)]' 
-                                  : 'bg-brand-sage-50 text-brand-sage-600 border-brand-sage-100 hover:bg-brand-sage-600 hover:text-white hover:border-brand-sage-600 shadow-sm'}`}
-                              title="Edit"
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                            </button>
-                            {b.id && (
-                              <button onClick={() => handleDeleteBlog(b.id)} className={`p-1.5 rounded-lg border transition-all duration-200 outline-none
-                                ${isDarkMode 
-                                  ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-[0_0_10px_rgba(239,68,68,0.4)]' 
-                                  : 'bg-white text-red-600 border-red-100 hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm shadow-red-50'}`} title="Delete">
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
+                            <button onClick={() => startEditBlog(b)} className={`p-1.5 rounded-lg border transition-all duration-200 outline-none ${isDarkMode ? 'bg-tech-blue/10 text-tech-blue border-tech-blue/20 hover:bg-tech-blue hover:text-black hover:border-tech-blue hover:shadow-[0_0_10px_rgba(0,240,255,0.4)]' : 'bg-brand-sage-50 text-brand-sage-600 border-brand-sage-100 hover:bg-brand-sage-600 hover:text-white hover:border-brand-sage-600 shadow-sm'}`} title="Edit"><Edit className="w-3.5 h-3.5" /></button>
+                            {b.id && <button onClick={() => handleDeleteBlog(b.id)} className={`p-1.5 rounded-lg border transition-all duration-200 outline-none ${isDarkMode ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-white text-red-600 border-red-100 hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm shadow-red-50'}`} title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>}
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
                 </>
-              ) : (
+              ) : activeAdminTab === "projects" ? (
                 <>
-                  <div className={`p-6 rounded-2xl border mb-8 transition-all duration-300
-                    ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
-                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 
-                      ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>
-                      {editingProjectId ? "EDIT PROJECT ENTRY" : "CREATE NEW PROJECT"}
-                    </h4>
-
+                  <div className={`p-6 rounded-2xl border mb-8 transition-all duration-300 ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
+                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>{editingProjectId ? "EDIT PROJECT ENTRY" : "CREATE NEW PROJECT"}</h4>
                     <form onSubmit={(e) => handleCreateOrUpdateProject(e, false)} className="space-y-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Category</label>
-                          <input type="text" required placeholder="INTRODUCTION TO ROBOTICS..." value={projectFormCategory} onChange={(e) => setProjectFormCategory(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none
-                              ${isDarkMode 
-                                ? 'bg-neutral-950 border-neutral-800 text-white' 
-                                : 'bg-white border-neutral-200 text-neutral-950'}`}
-                          />
+                          <input type="text" required placeholder="INTRODUCTION TO ROBOTICS..." value={projectFormCategory} onChange={(e) => setProjectFormCategory(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                         </div>
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Action Type / Label</label>
-                          <input type="text" required placeholder="VIEW PROJECT or OPEN PDF..." value={projectFormType} onChange={(e) => setProjectFormType(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none 
-                              ${isDarkMode 
-                                ? 'bg-neutral-950 border-neutral-800 text-white' 
-                                : 'bg-white border-neutral-200 text-neutral-950'}`}
-                          />
+                          <input type="text" required placeholder="VIEW PROJECT or OPEN PDF..." value={projectFormType} onChange={(e) => setProjectFormType(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                         </div>
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Title</label>
-                        <input type="text" required placeholder="Project title..." value={projectFormTitle} onChange={(e) => setProjectFormTitle(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-sans focus:outline-none
-                            ${isDarkMode 
-                              ? 'bg-neutral-950 border-neutral-800 text-white' 
-                              : 'bg-white border-neutral-200 text-neutral-950'}`}
-                        />
+                        <input type="text" required placeholder="Project title..." value={projectFormTitle} onChange={(e) => setProjectFormTitle(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-sans focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Description</label>
-                        <textarea required rows={3} placeholder="Describe the technical scope and accomplishments..." value={projectFormDescription} onChange={(e) => setProjectFormDescription(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-sans focus:outline-none
-                            ${isDarkMode 
-                              ? 'bg-neutral-950 border-neutral-800 text-white' 
-                              : 'bg-white border-neutral-200 text-neutral-950'}`}
-                        />
+                        <textarea required rows={3} placeholder="Describe the technical scope and accomplishments..." value={projectFormDescription} onChange={(e) => setProjectFormDescription(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-sans focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Project reference link (Optional)</label>
-                        <input type="text" placeholder="https:// or #" value={projectFormLink} onChange={(e) => setProjectFormLink(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none
-                            ${isDarkMode 
-                              ? 'bg-neutral-950 border-neutral-800 text-white' 
-                              : 'bg-white border-neutral-200 text-neutral-950'}`}
-                        />
+                        <input type="text" placeholder="https:// or #" value={projectFormLink} onChange={(e) => setProjectFormLink(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                       </div>
-
                       {projectFormError && <div className="text-xs font-mono text-red-500">{projectFormError}</div>}
-
                       <div className="flex flex-wrap items-center gap-3 pt-2">
-                        <button type="submit" className={`px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all
-                            ${isDarkMode 
-                              ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(188,0,255,0.25)] hover:shadow-[0_0_25px_rgba(188,0,255,0.45)]' 
-                              : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}
-                        >
-                          {editingProjectId ? "PUBLISH UPDATE" : "PUBLISH PROJECT"}
-                        </button>
-                        <button type="button" onClick={(e) => handleCreateOrUpdateProject(e, true)} className="px-5 py-2.5 bg-neutral-600 hover:bg-neutral-700 text-white font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all">
-                          {editingProjectId ? "SAVE AS DRAFT" : "SAVE DRAFT"}
-                        </button>
-                        {editingProjectId && (
-                          <button type="button" onClick={clearProjectForm} className="px-4 py-2.5 border border-neutral-300 dark:border-neutral-700 text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">
-                            Cancel
-                          </button>
-                        )}
-                          {editingProjectId && (
-                            <button type="button" onClick={() => editingProjectId && handleDeleteProject(editingProjectId)} className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">
-                              DELETE PROJECT
-                            </button>
-                          )}
+                        <button type="submit" className={`px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${isDarkMode ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(188,0,255,0.25)] hover:shadow-[0_0_25px_rgba(188,0,255,0.45)]' : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}>{editingProjectId ? "PUBLISH UPDATE" : "PUBLISH PROJECT"}</button>
+                        <button type="button" onClick={(e) => handleCreateOrUpdateProject(e, true)} className="px-5 py-2.5 bg-neutral-600 hover:bg-neutral-700 text-white font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all">{editingProjectId ? "SAVE AS DRAFT" : "SAVE DRAFT"}</button>
+                        {editingProjectId && <button type="button" onClick={clearProjectForm} className="px-4 py-2.5 border border-neutral-300 dark:border-neutral-700 text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">Cancel</button>}
+                        {editingProjectId && <button type="button" onClick={() => editingProjectId && handleDeleteProject(editingProjectId)} className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">DELETE PROJECT</button>}
                       </div>
                     </form>
                   </div>
-
                   <div>
                     <h4 className="text-xs font-bold tracking-widest uppercase font-mono mb-4 text-neutral-400">MANAGE RECENT PROJECTS</h4>
                     <div className="space-y-3">
@@ -1924,38 +1964,103 @@ export default function App() {
                         <div key={p.id || p.title} className={`px-4 py-2 rounded-xl border flex items-center justify-between gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white' : 'bg-neutral-50 border-neutral-200 text-neutral-950'}`}>
                           <div className="overflow-hidden">
                             <span className="text-[11px] font-mono text-neutral-400 uppercase tracking-widest mr-2">{p.category}</span>
-                            <h5 className="font-bold text-[15px] truncate flex items-center gap-2">
-                              {p.title}
-                              {p.draft && <span className={`px-1.5 py-0.5 text-[14px] font-mono tracking-widest uppercase font-bold rounded scale-90 origin-left border
-                                  ${isDarkMode 
-                                    ? 'text-tech-blue bg-tech-blue/10 border-tech-blue/30' 
-                                    : 'text-brand-sage-600 bg-brand-sage-50 border-brand-sage-200'}`}>DRAFT</span>}
-                            </h5>
+                            <h5 className="font-bold text-[15px] truncate flex items-center gap-2">{p.title}{p.draft && <span className={`px-1.5 py-0.5 text-[14px] font-mono tracking-widest uppercase font-bold rounded scale-90 origin-left border ${isDarkMode ? 'text-tech-blue bg-tech-blue/10 border-tech-blue/30' : 'text-brand-sage-600 bg-brand-sage-50 border-brand-sage-200'}`}>DRAFT</span>}</h5>
                             <p className="text-[13px] text-neutral-400 truncate max-w-md">{p.description}</p>
                           </div>
                           <div className="flex items-center gap-2 shrink-0">
-                            <button onClick={() => startEditProject(p)} className={`p-1.5 rounded-lg border transition-all duration-200 outline-none
-                                ${isDarkMode 
-                                  ? 'bg-tech-blue/10 text-tech-blue border-tech-blue/20 hover:bg-tech-blue hover:text-black hover:border-tech-blue hover:shadow-[0_0_10px_rgba(0,240,255,0.4)]' 
-                                  : 'bg-brand-sage-50 text-brand-sage-600 border-brand-sage-100 hover:bg-brand-sage-600 hover:text-white hover:border-brand-sage-600 shadow-sm'}`}
-                              title="Edit"
-                            >
-                              <Edit className="w-3.5 h-3.5" />
-                            </button>
-                            {p.id && (
-                              <button onClick={() => handleDeleteProject(p.id)} className={`p-1.5 rounded-lg border transition-all duration-200 outline-none
-                                ${isDarkMode 
-                                  ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-[0_0_10px_rgba(239,68,68,0.4)]' 
-                                  : 'bg-white text-red-600 border-red-100 hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm shadow-red-50'}`} title="Delete">
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
+                            <button onClick={() => startEditProject(p)} className={`p-1.5 rounded-lg border transition-all duration-200 outline-none ${isDarkMode ? 'bg-tech-blue/10 text-tech-blue border-tech-blue/20 hover:bg-tech-blue hover:text-black hover:border-tech-blue hover:shadow-[0_0_10px_rgba(0,240,255,0.4)]' : 'bg-brand-sage-50 text-brand-sage-600 border-brand-sage-100 hover:bg-brand-sage-600 hover:text-white hover:border-brand-sage-600 shadow-sm'}`} title="Edit"><Edit className="w-3.5 h-3.5" /></button>
+                            {p.id && <button onClick={() => handleDeleteProject(p.id)} className={`p-1.5 rounded-lg border transition-all duration-200 outline-none ${isDarkMode ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-white text-red-600 border-red-100 hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm shadow-red-50'}`} title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>}
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
                 </>
+              ) : activeAdminTab === "experiences" ? (
+                <>
+                  <div className={`p-6 rounded-2xl border mb-8 transition-all duration-300 ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
+                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>{editingExperienceId ? "EDIT EXPERIENCE ENTRY" : "CREATE NEW EXPERIENCE"}</h4>
+                    <form onSubmit={(e) => handleCreateOrUpdateExperience(e, false)} className="space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Company / Lab / Title</label>
+                          <input type="text" required placeholder="QMUL Robotics Lab / Barnardo's..." value={experienceFormTitle} onChange={(e) => setExperienceFormTitle(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Role / Designation</label>
+                          <input type="text" required placeholder="RETAIL VOLUNTEER..." value={experienceFormRole} onChange={(e) => setExperienceFormRole(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Period (Optional)</label>
+                          <input type="text" placeholder="OCT 2025 - PRESENT" value={experienceFormPeriod} onChange={(e) => setExperienceFormPeriod(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Experience Type</label>
+                          <select value={experienceFormType} onChange={(e) => setExperienceFormType(e.target.value as ExperienceType)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`}>
+                            {EXPERIENCE_TYPE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Visual Icon Key</label>
+                          <select value={experienceFormIconKey} onChange={(e) => setExperienceFormIconKey(e.target.value as ExperienceIconKey)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`}>
+                            {EXPERIENCE_ICON_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Bullets List (one accomplishment per line)</label>
+                        <textarea required rows={5} placeholder="Optimized navigation algorithms by 15% using Python\nIntegrated multi-modal LiDAR with camera rigs\nPresented findings to academic review boards" value={experienceFormBullets} onChange={(e) => setExperienceFormBullets(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-sans focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                      </div>
+                      {experienceFormError && <div className="text-xs font-mono text-red-500">{experienceFormError}</div>}
+                      <div className="flex flex-wrap items-center gap-3 pt-2">
+                        <button type="submit" className={`px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${isDarkMode ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(188,0,255,0.25)] hover:shadow-[0_0_25px_rgba(188,0,255,0.45)]' : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}>{editingExperienceId ? "PUBLISH UPDATE" : "PUBLISH EXPERIENCE"}</button>
+                        <button type="button" onClick={(e) => handleCreateOrUpdateExperience(e, true)} className="px-5 py-2.5 bg-neutral-600 hover:bg-neutral-700 text-white font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all">{editingExperienceId ? "SAVE AS DRAFT" : "SAVE DRAFT"}</button>
+                        {editingExperienceId && <button type="button" onClick={clearExperienceForm} className="px-4 py-2.5 border border-neutral-300 dark:border-neutral-700 text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">Cancel</button>}
+                        {editingExperienceId && <button type="button" onClick={() => editingExperienceId && handleDeleteExperience(editingExperienceId)} className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">DELETE EXPERIENCE</button>}
+                      </div>
+                    </form>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold tracking-widest uppercase font-mono mb-4 text-neutral-400">MANAGE RECENT EXPERIENCES</h4>
+                    <div className="space-y-3">
+                      {(experiences.length ? experiences : []).map((experience) => (
+                        <div key={experience.id || experience.title} className={`px-4 py-4 rounded-xl border flex items-center justify-between gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white' : 'bg-neutral-50 border-neutral-200 text-neutral-950'}`}>
+                          <div className="overflow-hidden min-w-0">
+                            <div className="flex items-center gap-2 text-[11px] font-mono text-neutral-400 uppercase tracking-widest mb-1">
+                              <span className="flex items-center gap-1">{getExperienceIcon(experience.iconKey)}</span>
+                              <span>{experience.type === "work" ? "ACADEMIC/WORK" : "VOLUNTARY"}</span>
+                              {experience.period && <span>({experience.period})</span>}
+                              {experience.draft && <span className={`px-1.5 py-0.5 text-[10px] font-mono tracking-widest uppercase font-bold rounded border ${isDarkMode ? 'text-tech-blue bg-tech-blue/10 border-tech-blue/30' : 'text-brand-sage-600 bg-brand-sage-50 border-brand-sage-200'}`}>DRAFT</span>}
+                            </div>
+                            <h5 className="font-bold text-[15px] truncate">{experience.title}</h5>
+                            <p className="text-[13px] text-neutral-400 truncate max-w-md">{experience.role}</p>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button onClick={() => startEditExperience(experience)} className={`p-1.5 rounded-lg border transition-all duration-200 outline-none ${isDarkMode ? 'bg-tech-blue/10 text-tech-blue border-tech-blue/20 hover:bg-tech-blue hover:text-black hover:border-tech-blue hover:shadow-[0_0_10px_rgba(0,240,255,0.4)]' : 'bg-brand-sage-50 text-brand-sage-600 border-brand-sage-100 hover:bg-brand-sage-600 hover:text-white hover:border-brand-sage-600 shadow-sm'}`} title="Edit"><Edit className="w-3.5 h-3.5" /></button>
+                            {experience.id && <button onClick={() => handleDeleteExperience(experience.id)} className={`p-1.5 rounded-lg border transition-all duration-200 outline-none ${isDarkMode ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-white text-red-600 border-red-100 hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm shadow-red-50'}`} title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className={`p-6 rounded-2xl border mb-8 transition-all duration-300 ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
+                  <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>EDIT RESUME / CV LINK</h4>
+                  <form onSubmit={handleSaveResume} className="space-y-4">
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Resume (PDF) URL</label>
+                      <input type="text" required placeholder="https://..." value={resumeFormUrl} onChange={(e) => setResumeFormUrl(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                    </div>
+                    <p className="text-[13px] text-neutral-500 font-mono leading-relaxed">Provide a URL pointing directly to your CV (e.g., Google Drive, Dropbox, your own website, or static assets).</p>
+                    {resumeFormError && <div className="text-xs font-mono text-red-500">{resumeFormError}</div>}
+                    <div className="pt-2">
+                      <button type="submit" className={`px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${isDarkMode ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(188,0,255,0.25)] hover:shadow-[0_0_25px_rgba(188,0,255,0.45)]' : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}>SAVE CV LINK</button>
+                    </div>
+                  </form>
+                </div>
               )}
             </div>
 

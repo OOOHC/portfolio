@@ -48,6 +48,8 @@ const DEFAULT_POSTS = [
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const BLOGS_FILE = path.join(DATA_DIR, "blogs.json");
+const EXPERIENCES_FILE = path.join(DATA_DIR, "experiences.json");
+const RESUME_FILE = path.join(DATA_DIR, "resume.json");
 
 async function getBlogs() {
   try {
@@ -126,6 +128,90 @@ const DEFAULT_PROJECTS = [
   }
 ];
 
+const DEFAULT_EXPERIENCES = [
+  {
+    id: "work-1",
+    title: "T4",
+    role: "Boba Barista",
+    period: "Mar 2025",
+    type: "work",
+    iconKey: "cpu",
+    bullets: [
+      "Collaborated with team members during peak periods to support efficient operations",
+      "Prepared and served Urber Eats deliveries",
+      "Maintained high quality hygiene and safety standards"
+    ],
+    draft: false
+  },
+  {
+    id: "vol-1",
+    title: "World Table Tennis London 2026",
+    role: "FAN ZONE ACTIVATOR, MEDIA ASSISTANT, ANTI-DOPING ASSISTANT",
+    period: "MAY 2026",
+    type: "voluntary",
+    iconKey: "briefcase",
+    bullets: [
+      "Supported the setup and operation of the fan engagement zone, ensuring a smooth and engaging visitor experience",
+      "Coordinated with media personnel and publishers to facilitate efficient content distribution and event coverage",
+      "Assisted in the implementation of anti-doping procedures, maintaining compliance with official regulations and protocols"
+    ],
+    draft: false
+  },
+  {
+    id: "vol-2",
+    title: "Chinese New Year & Lantern Festival",
+    role: "EVENT PHOTOGRAPHER",
+    period: "FEB, MAR 2026",
+    type: "voluntary",
+    iconKey: "camera",
+    bullets: [
+      "Captured high-quality event photography featured on official organiser media channels and People's Daily Online"
+    ],
+    draft: false
+  },
+  {
+    id: "vol-3",
+    title: "Thames Hospice",
+    role: "RETAIL VOLUNTEER",
+    period: "Feb 2024",
+    type: "voluntary",
+    iconKey: "heart",
+    bullets: [
+      "Welcomed and assisted customers in a professional environment.",
+      "Shared charity information and encouraged community support.",
+      "Restocked and presented the shop floor."
+    ],
+    draft: false
+  },
+  {
+    id: "vol-4",
+    title: "Barnardo's",
+    role: "RETAIL VOLUNTEER",
+    period: "Feb 2023",
+    type: "voluntary",
+    iconKey: "heart",
+    bullets: [
+      "Sorted and organised donated items for sale.",
+      "Personalised assistance for customers finding items."
+    ],
+    draft: false
+  },
+  {
+    id: "vol-5",
+    title: "British Heart Foundation",
+    role: "RETAIL VOLUNTEER",
+    period: "Feb 2022",
+    type: "voluntary",
+    iconKey: "heart",
+    bullets: [
+      "Responded to questions and supported daily retail operations."
+    ],
+    draft: false
+  }
+];
+
+const DEFAULT_RESUME = { id: "resume", url: "/resume.pdf" };
+
 async function getProjects() {
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
@@ -149,6 +235,60 @@ async function saveProjects(projects: any) {
     return true;
   } catch (error) {
     console.error("Error saving projects database:", error);
+    return false;
+  }
+}
+
+async function getExperiences() {
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    try {
+      const data = await fs.readFile(EXPERIENCES_FILE, "utf-8");
+      return JSON.parse(data);
+    } catch {
+      await fs.writeFile(EXPERIENCES_FILE, JSON.stringify(DEFAULT_EXPERIENCES, null, 2), "utf-8");
+      return DEFAULT_EXPERIENCES;
+    }
+  } catch (error) {
+    console.error("Error reading experiences database:", error);
+    return DEFAULT_EXPERIENCES;
+  }
+}
+
+async function saveExperiences(experiences: any) {
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    await fs.writeFile(EXPERIENCES_FILE, JSON.stringify(experiences, null, 2), "utf-8");
+    return true;
+  } catch (error) {
+    console.error("Error saving experiences database:", error);
+    return false;
+  }
+}
+
+async function getResumeSettings() {
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    try {
+      const data = await fs.readFile(RESUME_FILE, "utf-8");
+      return JSON.parse(data);
+    } catch {
+      await fs.writeFile(RESUME_FILE, JSON.stringify(DEFAULT_RESUME, null, 2), "utf-8");
+      return DEFAULT_RESUME;
+    }
+  } catch (error) {
+    console.error("Error reading resume database:", error);
+    return DEFAULT_RESUME;
+  }
+}
+
+async function saveResumeSettings(resume: any) {
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    await fs.writeFile(RESUME_FILE, JSON.stringify(resume, null, 2), "utf-8");
+    return true;
+  } catch (error) {
+    console.error("Error saving resume database:", error);
     return false;
   }
 }
@@ -495,6 +635,223 @@ async function startServer() {
       res.json({ message: "Successfully deleted project" });
     } else {
       res.status(500).json({ error: "Failed to delete project" });
+    }
+  });
+
+  // Get all experiences
+  app.get("/api/experiences", async (req, res) => {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('experiences').select('*').order('inserted_at', { ascending: false });
+        if (error) {
+          console.error('Supabase fetch experiences error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
+        return res.json((data || []).map((experience: any) => ({
+          id: experience.id,
+          title: experience.title,
+          role: experience.role,
+          period: experience.period,
+          type: experience.type,
+          iconKey: experience.icon_key || experience.iconKey || 'briefcase',
+          bullets: experience.bullets || [],
+          draft: !!experience.draft
+        })));
+      } catch (e: any) {
+        console.error('Supabase fetch experiences unexpected error:', e);
+      }
+    }
+    const experiences = await getExperiences();
+    res.json(experiences);
+  });
+
+  // Add an experience
+  app.post("/api/experiences", requireAuth, async (req, res) => {
+    const { title, role, period, type, iconKey, bullets, draft } = req.body;
+    if (!title || !role || !Array.isArray(bullets) || bullets.length === 0) {
+      return res.status(400).json({ error: "Title, role, and bullets are required" });
+    }
+    const newExperience = {
+      id: Date.now().toString(),
+      title,
+      role,
+      period: period || "",
+      type: type || "work",
+      iconKey: iconKey || "briefcase",
+      bullets,
+      draft: !!draft
+    };
+    if (supabase) {
+      try {
+        const payload = {
+          ...newExperience,
+          icon_key: newExperience.iconKey
+        };
+        const { data, error } = await supabase.from('experiences').insert([payload]).select();
+        if (error) {
+          console.error('Supabase insert experience error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
+        const row = (data && data[0]) || payload;
+        return res.status(201).json({
+          id: row.id,
+          title: row.title,
+          role: row.role,
+          period: row.period,
+          type: row.type,
+          iconKey: row.icon_key || row.iconKey || 'briefcase',
+          bullets: row.bullets || [],
+          draft: !!row.draft
+        });
+      } catch (e: any) {
+        console.error('Supabase insert experience unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
+      }
+    }
+    const experiences = await getExperiences();
+    experiences.unshift(newExperience);
+    const success = await saveExperiences(experiences);
+    if (success) {
+      res.status(201).json(newExperience);
+    } else {
+      res.status(500).json({ error: "Failed to persist experience" });
+    }
+  });
+
+  // Edit an experience
+  app.put("/api/experiences/:id", requireAuth, async (req, res) => {
+    const { id } = req.params;
+    const { title, role, period, type, iconKey, bullets, draft } = req.body;
+    if (supabase) {
+      try {
+        const updates: any = {};
+        if (title !== undefined) updates.title = title;
+        if (role !== undefined) updates.role = role;
+        if (period !== undefined) updates.period = period;
+        if (type !== undefined) updates.type = type;
+        if (iconKey !== undefined) updates.icon_key = iconKey;
+        if (bullets !== undefined) updates.bullets = bullets;
+        if (draft !== undefined) updates.draft = !!draft;
+        const { data, error } = await supabase.from('experiences').update(updates).eq('id', id).select();
+        if (error) {
+          console.error('Supabase update experience error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
+        if (!data || data.length === 0) return res.status(404).json({ error: 'Experience not found' });
+        const row = data[0] as any;
+        return res.json({
+          id: row.id,
+          title: row.title,
+          role: row.role,
+          period: row.period,
+          type: row.type,
+          iconKey: row.icon_key || row.iconKey || 'briefcase',
+          bullets: row.bullets || [],
+          draft: !!row.draft
+        });
+      } catch (e: any) {
+        console.error('Supabase update experience unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
+      }
+    }
+    const experiences = await getExperiences();
+    const idx = experiences.findIndex((experience: any) => experience.id === id);
+    if (idx === -1) {
+      return res.status(404).json({ error: "Experience not found" });
+    }
+    experiences[idx] = {
+      ...experiences[idx],
+      title: title || experiences[idx].title,
+      role: role || experiences[idx].role,
+      period: period !== undefined ? period : experiences[idx].period,
+      type: type || experiences[idx].type,
+      iconKey: iconKey || experiences[idx].iconKey,
+      bullets: bullets || experiences[idx].bullets,
+      draft: draft !== undefined ? !!draft : experiences[idx].draft
+    };
+    const success = await saveExperiences(experiences);
+    if (success) {
+      res.json(experiences[idx]);
+    } else {
+      res.status(500).json({ error: "Failed to save experience" });
+    }
+  });
+
+  // Delete an experience
+  app.delete("/api/experiences/:id", requireAuth, async (req, res) => {
+    const { id } = req.params;
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('experiences').delete().eq('id', id).select();
+        if (error) {
+          console.error('Supabase delete experience error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
+        if (!data || data.length === 0) return res.status(404).json({ error: 'Experience not found' });
+        return res.json({ message: 'Successfully deleted experience' });
+      } catch (e: any) {
+        console.error('Supabase delete experience unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
+      }
+    }
+    const experiences = await getExperiences();
+    const filteredExperiences = experiences.filter((experience: any) => experience.id !== id);
+    if (filteredExperiences.length === experiences.length) {
+      return res.status(404).json({ error: "Experience not found" });
+    }
+    const success = await saveExperiences(filteredExperiences);
+    if (success) {
+      res.json({ message: "Successfully deleted experience" });
+    } else {
+      res.status(500).json({ error: "Failed to delete experience" });
+    }
+  });
+
+  // Resume URL
+  app.get("/api/resume", async (req, res) => {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('resume_settings').select('*').eq('id', 'resume').maybeSingle();
+        if (error) {
+          console.error('Supabase fetch resume error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
+        if (data) {
+          return res.json({ url: (data as any).url || '' });
+        }
+      } catch (e: any) {
+        console.error('Supabase fetch resume unexpected error:', e);
+      }
+    }
+    const resume = await getResumeSettings();
+    res.json({ url: resume.url || '' });
+  });
+
+  app.put("/api/resume", requireAuth, async (req, res) => {
+    const { url } = req.body;
+    if (!url) {
+      return res.status(400).json({ error: "Resume URL is required" });
+    }
+    if (supabase) {
+      try {
+        const payload = { id: 'resume', url };
+        const { data, error } = await supabase.from('resume_settings').upsert(payload).select();
+        if (error) {
+          console.error('Supabase save resume error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
+        const row = (data && data[0]) || payload;
+        return res.json({ url: row.url });
+      } catch (e: any) {
+        console.error('Supabase save resume unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
+      }
+    }
+    const success = await saveResumeSettings({ id: 'resume', url });
+    if (success) {
+      res.json({ url });
+    } else {
+      res.status(500).json({ error: "Failed to save resume URL" });
     }
   });
 

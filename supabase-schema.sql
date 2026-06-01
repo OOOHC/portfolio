@@ -22,3 +22,23 @@ CREATE TABLE IF NOT EXISTS projects (
   draft boolean DEFAULT false,
   inserted_at timestamptz DEFAULT now()
 );
+
+-- Experiences table
+CREATE TABLE IF NOT EXISTS experiences (
+  id text PRIMARY KEY,
+  title text NOT NULL,
+  role text NOT NULL,
+  period text,
+  type text NOT NULL,
+  icon_key text NOT NULL,
+  bullets jsonb NOT NULL DEFAULT '[]'::jsonb,
+  draft boolean DEFAULT false,
+  inserted_at timestamptz DEFAULT now()
+);
+
+-- Resume settings table
+CREATE TABLE IF NOT EXISTS resume_settings (
+  id text PRIMARY KEY,
+  url text NOT NULL,
+  inserted_at timestamptz DEFAULT now()
+);
