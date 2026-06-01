@@ -1869,7 +1869,7 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="flex flex-wrap mb-6 font-mono text-s gap-4">
+              <div className="flex flex-wrap mb-6 font-mono text-xs gap-4">
                 <button onClick={() => { setActiveAdminTab("blogs"); clearProjectForm(); clearExperienceForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "blogs" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE BLOG POSTS</button>
                 <button onClick={() => { setActiveAdminTab("projects"); clearBlogForm(); clearExperienceForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "projects" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE PROJECTS</button>
                 <button onClick={() => { setActiveAdminTab("experiences"); clearBlogForm(); clearProjectForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "experiences" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE EXPERIENCES</button>
