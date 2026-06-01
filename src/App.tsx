@@ -55,12 +55,6 @@ const supabaseClient = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
 
-const toDatetimeLocal = (iso: string | null | undefined): string => {
-  if (!iso) return "";
-  const d = new Date(iso);
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-};
-
 const resolveLoginEmail = (username: string) => {
   if (username === "admin") {
     return (import.meta as any).env?.VITE_ADMIN_EMAIL || username;
@@ -652,7 +646,6 @@ export default function App() {
   const [experienceFormType, setExperienceFormType] = useState<ExperienceType>("work");
   const [experienceFormIconKey, setExperienceFormIconKey] = useState("Briefcase");
   const [experienceFormBullets, setExperienceFormBullets] = useState("");
-  const [experienceFormInsertedAt, setExperienceFormInsertedAt] = useState("");
   const [editingExperienceId, setEditingExperienceId] = useState<string | null>(null);
   const [experienceFormError, setExperienceFormError] = useState("");
   const [resumeFormUrl, setResumeFormUrl] = useState("");
@@ -849,7 +842,6 @@ export default function App() {
           description: blogFormDescription,
           link: blogFormLink,
           draft: isDraft
-          inserted_at: experienceFormInsertedAt ? new Date(experienceFormInsertedAt).toISOString() : undefined
         })
       });
 
@@ -1064,7 +1056,6 @@ export default function App() {
     setExperienceFormType(experience.type);
     setExperienceFormIconKey(experience.iconKey || "Briefcase");
     setExperienceFormBullets((experience.bullets || []).join("\n"));
-    setExperienceFormInsertedAt(toDatetimeLocal(experience.inserted_at));
     setActiveAdminTab("experiences");
   };
 
@@ -1073,7 +1064,6 @@ export default function App() {
     setExperienceFormTitle("");
     setExperienceFormRole("");
     setExperienceFormPeriod("");
-    setExperienceFormInsertedAt("");
     setExperienceFormType("work");
     setExperienceFormIconKey("Briefcase");
     setExperienceFormBullets("");
@@ -1750,7 +1740,7 @@ export default function App() {
           >
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-2">
-                <Lock className={`w-5 h-5 ${isDarkMode ? 'text-tech-blue' : 'text-neutral-900'}`} />
+                <Lock className={`w-5 h-5 ${isDarkMode ? 'text-tech-purple' : 'text-neutral-900'}`} />
                 <h3 className="text-xl font-bold tracking-wider font-mono">ADMIN LOGIN</h3>
               </div>
               <button
@@ -1772,7 +1762,7 @@ export default function App() {
                   onChange={(e) => setLoginUsername(e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border text-sm font-mono focus:outline-none transition-all
                     ${isDarkMode
-                      ? 'bg-neutral-950 border-neutral-800 text-white focus:border-tech-blue/50 focus:shadow-[0_0_15px_rgba(188,0,255,0.2)]'
+                      ? 'bg-neutral-950 border-neutral-800 text-white focus:border-tech-purple/50 focus:shadow-[0_0_15px_rgba(188,0,255,0.2)]'
                       : 'bg-neutral-50 border-neutral-200 text-neutral-950 focus:border-neutral-800'}`}
                 />
               </div>
@@ -1787,7 +1777,7 @@ export default function App() {
                   onChange={(e) => setLoginPassword(e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border text-sm font-mono focus:outline-none transition-all
                     ${isDarkMode
-                      ? 'bg-neutral-950 border-neutral-800 text-white focus:border-tech-blue/50 focus:shadow-[0_0_15px_rgba(188,0,255,0.2)]'
+                      ? 'bg-neutral-950 border-neutral-800 text-white focus:border-tech-purple/50 focus:shadow-[0_0_15px_rgba(188,0,255,0.2)]'
                       : 'bg-neutral-50 border-neutral-200 text-neutral-950 focus:border-neutral-800'}`}
                 />
               </div>
@@ -1802,7 +1792,7 @@ export default function App() {
                 type="submit"
                 className={`w-full py-3.5 rounded-xl text-xs font-bold tracking-widest uppercase transition-all
                   ${isDarkMode
-                    ? 'bg-tech-blue text-white hover:bg-opacity-90 shadow-[0_0_20px_rgba(0,240,255,0.3)]'
+                    ? 'bg-tech-purple text-white hover:bg-opacity-90 shadow-[0_0_20px_rgba(188,0,255,0.3)]'
                     : 'bg-black text-white hover:bg-neutral-900'}`}
               >
                 SIGN IN
@@ -1847,7 +1837,7 @@ export default function App() {
               {activeAdminTab === "blogs" ? (
                 <>
                   <div className={`p-6 rounded-2xl border mb-6 transition-all duration-300 ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
-                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-blue' : 'text-brand-sage-500'}`}>{editingBlogId ? "EDIT POST ENTRY" : "WRITE NEW BLOG POST"}</h4>
+                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>{editingBlogId ? "EDIT POST ENTRY" : "WRITE NEW BLOG POST"}</h4>
                     <form onSubmit={handleCreateOrUpdateBlog} className="space-y-3">
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Title</label>
@@ -1863,7 +1853,7 @@ export default function App() {
                       </div>
                       {blogFormError && <div className="text-xs font-mono text-red-500">{blogFormError}</div>}
                       <div className="flex flex-wrap items-center gap-3 pt-2">
-                        <button type="submit" className={`px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${isDarkMode ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(0,240,255,0.25)] hover:shadow-[0_0_25px_rgba(0,240,255,0.45)]' : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}>{editingBlogId ? "PUBLISH UPDATE" : "PUBLISH POST"}</button>
+                        <button type="submit" className={`px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${isDarkMode ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(188,0,255,0.25)] hover:shadow-[0_0_25px_rgba(188,0,255,0.45)]' : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}>{editingBlogId ? "PUBLISH UPDATE" : "PUBLISH POST"}</button>
                         <button type="button" onClick={(e) => handleCreateOrUpdateBlog(e, true)} className="px-5 py-2.5 bg-neutral-600 hover:bg-neutral-700 text-white font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all">{editingBlogId ? "SAVE AS DRAFT" : "SAVE DRAFT"}</button>
                         {editingBlogId && <button type="button" onClick={clearBlogForm} className="px-4 py-2.5 border border-neutral-300 dark:border-neutral-700 text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">Cancel</button>}
                         {editingBlogId && <button type="button" onClick={() => editingBlogId && handleDeleteBlog(editingBlogId)} className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">DELETE POST</button>}
@@ -1892,7 +1882,7 @@ export default function App() {
               ) : activeAdminTab === "projects" ? (
                 <>
                   <div className={`p-6 rounded-2xl border mb-8 transition-all duration-300 ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
-                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-brand-cream' : 'text-brand-sage-500'}`}>{editingProjectId ? "EDIT PROJECT ENTRY" : "CREATE NEW PROJECT"}</h4>
+                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>{editingProjectId ? "EDIT PROJECT ENTRY" : "CREATE NEW PROJECT"}</h4>
                     <form onSubmit={(e) => handleCreateOrUpdateProject(e, false)} className="space-y-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -1947,7 +1937,7 @@ export default function App() {
               ) : activeAdminTab === "experiences" ? (
                 <>
                   <div className={`p-6 rounded-2xl border mb-8 transition-all duration-300 ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
-                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-brand-cream' : 'text-brand-sage-500'}`}>{editingExperienceId ? "EDIT EXPERIENCE ENTRY" : "CREATE NEW EXPERIENCE"}</h4>
+                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>{editingExperienceId ? "EDIT EXPERIENCE ENTRY" : "CREATE NEW EXPERIENCE"}</h4>
                     <form onSubmit={(e) => handleCreateOrUpdateExperience(e, false)} className="space-y-3">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -1964,13 +1954,6 @@ export default function App() {
                           <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Period (Optional)</label>
                           <input type="text" placeholder="OCT 2025 - PRESENT" value={experienceFormPeriod} onChange={(e) => setExperienceFormPeriod(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                         </div>
-
-                        <div>
-                          <label>Date Added (Optional — leave blank to use now)</label>
-                          <input type="datetime-local" value={experienceFormInsertedAt} 
-                            onChange={(e) => setExperienceFormInsertedAt(e.target.value)} />
-                        </div>
-
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Experience Type</label>
                           <select value={experienceFormType} onChange={(e) => setExperienceFormType(e.target.value as ExperienceType)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`}>
@@ -2021,7 +2004,7 @@ export default function App() {
                 </>
               ) : (
                 <div className={`p-6 rounded-2xl border mb-8 transition-all duration-300 ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
-                  <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-brand-cream' : 'text-brand-sage-500'}`}>EDIT RESUME / CV LINK</h4>
+                  <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>EDIT RESUME / CV LINK</h4>
                   <form onSubmit={handleSaveResume} className="space-y-4">
                     <div>
                       <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Resume (PDF) URL</label>
@@ -2030,7 +2013,7 @@ export default function App() {
                     <p className="text-[13px] text-neutral-500 font-mono leading-relaxed">Provide a URL pointing directly to your CV (e.g., Google Drive, Dropbox, your own website, or static assets).</p>
                     {resumeFormError && <div className="text-xs font-mono text-red-500">{resumeFormError}</div>}
                     <div className="pt-2">
-                      <button type="submit" className={`px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${isDarkMode ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(0,240,255,0.25)] hover:shadow-[0_0_25px_rgba(0,240,255,0.45)]' : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}>SAVE CV LINK</button>
+                      <button type="submit" className={`px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${isDarkMode ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(188,0,255,0.25)] hover:shadow-[0_0_25px_rgba(188,0,255,0.45)]' : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}>SAVE CV LINK</button>
                     </div>
                   </form>
                 </div>
