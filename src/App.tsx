@@ -1984,11 +1984,11 @@ export default function App() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Company / Lab / Title</label>
-                          <input type="text" required placeholder="QMUL Robotics Lab / Barnardo's..." value={experienceFormTitle} onChange={(e) => setExperienceFormTitle(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                          <input type="text" required placeholder="" value={experienceFormTitle} onChange={(e) => setExperienceFormTitle(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                         </div>
                         <div>
                           <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Role / Designation</label>
-                          <input type="text" required placeholder="RETAIL VOLUNTEER..." value={experienceFormRole} onChange={(e) => setExperienceFormRole(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                          <input type="text" required placeholder="" value={experienceFormRole} onChange={(e) => setExperienceFormRole(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                         </div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -2011,7 +2011,7 @@ export default function App() {
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Bullets List (one accomplishment per line)</label>
-                        <textarea required rows={5} placeholder="Optimized navigation algorithms by 15% using Python\nIntegrated multi-modal LiDAR with camera rigs\nPresented findings to academic review boards" value={experienceFormBullets} onChange={(e) => setExperienceFormBullets(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-sans focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                        <textarea required rows={5} placeholder="" value={experienceFormBullets} onChange={(e) => setExperienceFormBullets(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-sans focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                       </div>
                       {experienceFormError && <div className="text-xs font-mono text-red-500">{experienceFormError}</div>}
                       <div className="flex flex-wrap items-center gap-3 pt-2">
