@@ -1,0 +1,16 @@
+{
+  "projectId": "prj_aInM8PmMC2HomZa2COG6sVmWhj7E",
+  "orgId": "team_sFGr6kH2nt64MshpSmqyHqO5",
+  "projectName": "portfolio",
+  "settings": {
+    "createdAt": 1780333663403,
+    "framework": null,
+    "devCommand": null,
+    "installCommand": null,
+    "buildCommand": null,
+    "outputDirectory": null,
+    "rootDirectory": null,
+    "directoryListing": false,
+    "nodeVersion": "24.x"
+  }
+}

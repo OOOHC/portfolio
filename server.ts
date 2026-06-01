@@ -22,30 +22,6 @@ function getSupabaseClient(res: express.Response) {
   return supabase;
 }
 
-const DEFAULT_POSTS = [
-  {
-    id: "1",
-    date: "OCT 24, 2024",
-    title: "Exploring the Future of Generative AI",
-    description: "Diving deep into the implications of large language models on creative workflows and technical problem-solving. How can we ensure these tools augment human potential effectively?",
-    link: "#"
-  },
-  {
-    id: "2",
-    date: "OCT 12, 2024",
-    title: "My Journey into Robotics",
-    description: "Reflecting on the challenges of bridging the gap between abstract algorithms and physical hardware. A look into the assembly and navigation of my first mobile robot.",
-    link: "#"
-  },
-  {
-    id: "3",
-    date: "SEP 18, 2024",
-    title: "Optimizing Neural Networks",
-    description: "Practical strategies for achieving high performance when working with limited datasets. Focus on data augmentation and transfer learning techniques in computer vision.",
-    link: "#"
-  }
-];
-
 const DATA_DIR = path.join(process.cwd(), "data");
 const BLOGS_FILE = path.join(DATA_DIR, "blogs.json");
 const EXPERIENCES_FILE = path.join(DATA_DIR, "experiences.json");
@@ -58,12 +34,11 @@ async function getBlogs() {
       const data = await fs.readFile(BLOGS_FILE, "utf-8");
       return JSON.parse(data);
     } catch {
-      await fs.writeFile(BLOGS_FILE, JSON.stringify(DEFAULT_POSTS, null, 2), "utf-8");
-      return DEFAULT_POSTS;
+      return [];
     }
   } catch (error) {
     console.error("Error reading blogs database:", error);
-    return DEFAULT_POSTS;
+    return [];
   }
 }
 
@@ -79,54 +54,6 @@ async function saveBlogs(blogs: any) {
 }
 
 const PROJECTS_FILE = path.join(DATA_DIR, "projects.json");
-
-const DEFAULT_PROJECTS = [
-  {
-    id: "1",
-    category: "INTRODUCTION TO ROBOTICS",
-    title: "Mobile Robot Assembly & Navigation",
-    description: "Assembled a four-wheel mobile robot with Arduino, implementing Python-based navigation algorithms for obstacle avoidance and goal tracking. Achieved high-precision sensing and documented full system performance.",
-    link: "/projects/Robotics Lab Report_HeLingling.pdf",
-    type: "VIEW PROJECT",
-    draft: false
-  },
-  {
-    id: "2",
-    category: "OBJECT-ORIENTED PROGRAMMING",
-    title: "Horse Racing Simulator",
-    description: "Developed a Java-based simulator utilizing OOP principles: encapsulation, inheritance, polymorphism. Built an interactive Swing GUI for real-time race tracking and horse statistics.",
-    link: "https://github.com/OOOHC/HorseRaceSimulator",
-    type: "VIEW PROJECT",
-    draft: false
-  },
-  {
-    id: "3",
-    category: "GAME DESIGN",
-    title: "Hunt the Boggle Monster",
-    description: "A maze exploration game concept where players collect magical objects and use powers.",
-    link: "/projects/Level 5 mini project-Copy3.pdf",
-    type: "OPEN PDF",
-    draft: false
-  },
-  {
-    id: "4",
-    category: "SOFTWARE SPECIFICATION",
-    title: "Messaging App Specification",
-    description: "Defining requirements, interactions, and system behavior for a messaging platform.",
-    link: "/projects/Group1.8_ECS427U_assignment3.pdf",
-    type: "OPEN PDF",
-    draft: false
-  },
-  {
-    id: "5",
-    category: "RESEARCH PRESENTATION",
-    title: "Responsible Technology",
-    description: "Exploring responsible technology decisions and sustainability in modern computing.",
-    link: "/projects/Responsible & Sustainable Presentation.pdf",
-    type: "OPEN PDF",
-    draft: false
-  }
-];
 
 const DEFAULT_EXPERIENCES = [
   {
@@ -219,12 +146,11 @@ async function getProjects() {
       const data = await fs.readFile(PROJECTS_FILE, "utf-8");
       return JSON.parse(data);
     } catch {
-      await fs.writeFile(PROJECTS_FILE, JSON.stringify(DEFAULT_PROJECTS, null, 2), "utf-8");
-      return DEFAULT_PROJECTS;
+      return [];
     }
   } catch (error) {
     console.error("Error reading projects database:", error);
-    return DEFAULT_PROJECTS;
+    return [];
   }
 }
 
@@ -384,8 +310,7 @@ async function startServer() {
         console.error('Supabase fetch blogs error, falling back to local file:', e);
       }
     }
-    const blogs = await getBlogs();
-    res.json(blogs);
+    res.json([]);
   });
 
   // Add a blog
@@ -421,14 +346,7 @@ async function startServer() {
       }
     }
     // Fallback to local file storage only when Supabase is not configured
-    const blogs = await getBlogs();
-    blogs.unshift(newBlog);
-    const success = await saveBlogs(blogs);
-    if (success) {
-      res.status(201).json(newBlog);
-    } else {
-      res.status(500).json({ error: "Failed to persist blog post" });
-    }
+    return res.status(503).json({ error: "Supabase is required for blog storage" });
   });
 
   // Edit a blog
@@ -454,24 +372,7 @@ async function startServer() {
         return res.status(500).json({ error: e.message || String(e) });
       }
     }
-    const blogs = await getBlogs();
-    const idx = blogs.findIndex((b: any) => b.id === id);
-    if (idx === -1) {
-      return res.status(404).json({ error: "Blog post not found" });
-    }
-    blogs[idx] = {
-      ...blogs[idx],
-      title: title || blogs[idx].title,
-      description: description || blogs[idx].description,
-      link: link || blogs[idx].link,
-      draft: draft !== undefined ? !!draft : blogs[idx].draft
-    };
-    const success = await saveBlogs(blogs);
-    if (success) {
-      res.json(blogs[idx]);
-    } else {
-      res.status(500).json({ error: "Failed to save blog post" });
-    }
+    return res.status(503).json({ error: "Supabase is required for blog storage" });
   });
 
   // Delete a blog
@@ -491,17 +392,7 @@ async function startServer() {
         return res.status(500).json({ error: e.message || String(e) });
       }
     }
-    const blogs = await getBlogs();
-    const filteredBlogs = blogs.filter((b: any) => b.id !== id);
-    if (filteredBlogs.length === blogs.length) {
-      return res.status(404).json({ error: "Blog post not found" });
-    }
-    const success = await saveBlogs(filteredBlogs);
-    if (success) {
-      res.json({ message: "Successfully deleted blog post" });
-    } else {
-      res.status(500).json({ error: "Failed to delete blog post" });
-    }
+    return res.status(503).json({ error: "Supabase is required for blog storage" });
   });
 
   // Get all projects
@@ -519,8 +410,7 @@ async function startServer() {
         return res.status(500).json({ error: e.message || String(e) });
       }
     }
-    const projects = await getProjects();
-    res.json(projects);
+    res.json([]);
   });
 
   // Add a project
@@ -551,14 +441,7 @@ async function startServer() {
         return res.status(500).json({ error: e.message || String(e) });
       }
     }
-    const projects = await getProjects();
-    projects.unshift(newProject);
-    const success = await saveProjects(projects);
-    if (success) {
-      res.status(201).json(newProject);
-    } else {
-      res.status(500).json({ error: "Failed to persist project" });
-    }
+    return res.status(503).json({ error: "Supabase is required for project storage" });
   });
 
   // Edit a project
@@ -586,26 +469,7 @@ async function startServer() {
         return res.status(500).json({ error: e.message || String(e) });
       }
     }
-    const projects = await getProjects();
-    const idx = projects.findIndex((p: any) => p.id === id);
-    if (idx === -1) {
-      return res.status(404).json({ error: "Project not found" });
-    }
-    projects[idx] = {
-      ...projects[idx],
-      category: category || projects[idx].category,
-      title: title || projects[idx].title,
-      description: description || projects[idx].description,
-      link: link || projects[idx].link,
-      type: type || projects[idx].type,
-      draft: draft !== undefined ? !!draft : projects[idx].draft
-    };
-    const success = await saveProjects(projects);
-    if (success) {
-      res.json(projects[idx]);
-    } else {
-      res.status(500).json({ error: "Failed to save project" });
-    }
+    return res.status(503).json({ error: "Supabase is required for project storage" });
   });
 
   // Delete a project
@@ -625,17 +489,7 @@ async function startServer() {
         return res.status(500).json({ error: e.message || String(e) });
       }
     }
-    const projects = await getProjects();
-    const filteredProjects = projects.filter((p: any) => p.id !== id);
-    if (filteredProjects.length === projects.length) {
-      return res.status(404).json({ error: "Project not found" });
-    }
-    const success = await saveProjects(filteredProjects);
-    if (success) {
-      res.json({ message: "Successfully deleted project" });
-    } else {
-      res.status(500).json({ error: "Failed to delete project" });
-    }
+    return res.status(503).json({ error: "Supabase is required for project storage" });
   });
 
   // Get all experiences
@@ -661,8 +515,7 @@ async function startServer() {
         console.error('Supabase fetch experiences unexpected error:', e);
       }
     }
-    const experiences = await getExperiences();
-    res.json(experiences);
+    res.json([]);
   });
 
   // Add an experience
@@ -684,8 +537,14 @@ async function startServer() {
     if (supabase) {
       try {
         const payload = {
-          ...newExperience,
-          icon_key: newExperience.iconKey
+          id: newExperience.id,
+          title: newExperience.title,
+          role: newExperience.role,
+          period: newExperience.period,
+          type: newExperience.type,
+          icon_key: newExperience.iconKey,
+          bullets: newExperience.bullets,
+          draft: newExperience.draft
         };
         const { data, error } = await supabase.from('experiences').insert([payload]).select();
         if (error) {
@@ -708,14 +567,7 @@ async function startServer() {
         return res.status(500).json({ error: e.message || String(e) });
       }
     }
-    const experiences = await getExperiences();
-    experiences.unshift(newExperience);
-    const success = await saveExperiences(experiences);
-    if (success) {
-      res.status(201).json(newExperience);
-    } else {
-      res.status(500).json({ error: "Failed to persist experience" });
-    }
+    return res.status(503).json({ error: "Supabase is required for experience storage" });
   });
 
   // Edit an experience
@@ -754,27 +606,7 @@ async function startServer() {
         return res.status(500).json({ error: e.message || String(e) });
       }
     }
-    const experiences = await getExperiences();
-    const idx = experiences.findIndex((experience: any) => experience.id === id);
-    if (idx === -1) {
-      return res.status(404).json({ error: "Experience not found" });
-    }
-    experiences[idx] = {
-      ...experiences[idx],
-      title: title || experiences[idx].title,
-      role: role || experiences[idx].role,
-      period: period !== undefined ? period : experiences[idx].period,
-      type: type || experiences[idx].type,
-      iconKey: iconKey || experiences[idx].iconKey,
-      bullets: bullets || experiences[idx].bullets,
-      draft: draft !== undefined ? !!draft : experiences[idx].draft
-    };
-    const success = await saveExperiences(experiences);
-    if (success) {
-      res.json(experiences[idx]);
-    } else {
-      res.status(500).json({ error: "Failed to save experience" });
-    }
+    return res.status(503).json({ error: "Supabase is required for experience storage" });
   });
 
   // Delete an experience
@@ -794,17 +626,7 @@ async function startServer() {
         return res.status(500).json({ error: e.message || String(e) });
       }
     }
-    const experiences = await getExperiences();
-    const filteredExperiences = experiences.filter((experience: any) => experience.id !== id);
-    if (filteredExperiences.length === experiences.length) {
-      return res.status(404).json({ error: "Experience not found" });
-    }
-    const success = await saveExperiences(filteredExperiences);
-    if (success) {
-      res.json({ message: "Successfully deleted experience" });
-    } else {
-      res.status(500).json({ error: "Failed to delete experience" });
-    }
+    return res.status(503).json({ error: "Supabase is required for experience storage" });
   });
 
   // Resume URL

@@ -1,5 +1,6 @@
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { createClient } from "@supabase/supabase-js";
+import * as LucideIcons from "lucide-react";
 import { 
   Search, 
   ArrowUpRight, 
@@ -62,7 +63,6 @@ const resolveLoginEmail = (username: string) => {
 };
 
 type ExperienceType = "work" | "voluntary";
-type ExperienceIconKey = "briefcase" | "camera" | "heart" | "cpu" | "trophy" | "globe" | "code" | "monitor";
 
 type ExperienceRecord = {
   id: string;
@@ -70,7 +70,7 @@ type ExperienceRecord = {
   role: string;
   period: string;
   type: ExperienceType;
-  iconKey: ExperienceIconKey;
+  iconKey: string;
   bullets: string[];
   draft?: boolean;
 };
@@ -80,37 +80,66 @@ const EXPERIENCE_TYPE_OPTIONS: Array<{ label: string; value: ExperienceType }> =
   { label: "Voluntary Work", value: "voluntary" },
 ];
 
-const EXPERIENCE_ICON_OPTIONS: Array<{ label: string; value: ExperienceIconKey }> = [
-  { label: "Briefcase (Professional)", value: "briefcase" },
-  { label: "Camera", value: "camera" },
-  { label: "Heart", value: "heart" },
-  { label: "CPU", value: "cpu" },
-  { label: "Trophy", value: "trophy" },
-  { label: "Globe", value: "globe" },
-  { label: "Code", value: "code" },
-  { label: "Monitor", value: "monitor" },
-];
+const ICON_ALIASES: Record<string, string> = {
+  briefcase: "Briefcase",
+  camera: "Camera",
+  code: "Code2",
+  cpu: "Cpu",
+  globe: "Globe",
+  heart: "Heart",
+  monitor: "Monitor",
+  trophy: "Trophy",
+};
 
-const getExperienceIcon = (iconKey: ExperienceIconKey) => {
-  switch (iconKey) {
-    case "camera":
-      return <Camera className="w-4 h-4" />;
-    case "heart":
-      return <Heart className="w-4 h-4" />;
-    case "cpu":
-      return <Cpu className="w-4 h-4" />;
-    case "trophy":
-      return <Trophy className="w-4 h-4" />;
-    case "globe":
-      return <Globe className="w-4 h-4" />;
-    case "code":
-      return <Code2 className="w-4 h-4" />;
-    case "monitor":
-      return <Monitor className="w-4 h-4" />;
-    case "briefcase":
-    default:
-      return <Briefcase className="w-4 h-4" />;
+const toPascalCase = (value: string) =>
+  value
+    .trim()
+    .replace(/[_-]+/g, " ")
+    .replace(/[^\w\s]/g, "")
+    .replace(/\s+(.)/g, (_, char: string) => char.toUpperCase())
+    .replace(/^(.)/, (_, char: string) => char.toUpperCase());
+
+const getLucideIconComponent = (iconCode?: string) => {
+  const rawCode = (iconCode || "Briefcase").trim();
+  const candidates = [
+    rawCode,
+    ICON_ALIASES[rawCode.toLowerCase()],
+    toPascalCase(rawCode),
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    const Icon = (LucideIcons as Record<string, any>)[candidate];
+    if (typeof Icon === "function") {
+      return Icon;
+    }
   }
+
+  return Briefcase;
+};
+
+const getExperienceIcon = (iconCode?: string, className = "w-4 h-4") => {
+  const Icon = getLucideIconComponent(iconCode);
+  return <Icon className={className} />;
+};
+
+const getExperienceInitials = (title: string) =>
+  title
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join("") || "EX";
+
+const ExperienceIconBadge = ({ experience, isDarkMode }: { experience: ExperienceRecord; isDarkMode: boolean }) => {
+  return (
+    <div className={`w-16 h-16 flex items-center justify-center shrink-0 transition-all rounded-3xl border ${
+      isDarkMode
+        ? 'bg-tech-blue/10 border-tech-blue/20 text-tech-blue drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]'
+        : 'bg-neutral-50 border-neutral-100 text-[#4d8b8b]'
+    }`}>
+      {getExperienceIcon(experience.iconKey, "w-7 h-7")}
+    </div>
+  );
 };
 
 const splitBulletList = (value: string) =>
@@ -149,65 +178,6 @@ const SKILL_CATEGORIES = [
     skills: [
       { name: "Linux", icon: <img src="/image/linux.png" alt="Linux" className="w-9 h-9 object-contain" />, color: "bg-brand-blue shadow-blue-100/50" },
     ]
-  }
-];
-
-const PROJECTS = [
-  {
-    category: "INTRODUCTION TO ROBOTICS",
-    title: "Mobile Robot Assembly & Navigation",
-    description: "Assembled a four-wheel mobile robot with Arduino, implementing Python-based navigation algorithms for obstacle avoidance and goal tracking. Achieved high-precision sensing and documented full system performance.",
-    link: "/projects/Robotics Lab Report_HeLingling.pdf",
-    type: "VIEW PROJECT"
-  },
-  {
-    category: "OBJECT-ORIENTED PROGRAMMING",
-    title: "Horse Racing Simulator",
-    description: "Developed a Java-based simulator utilizing OOP principles: encapsulation, inheritance, polymorphism. Built an interactive Swing GUI for real-time race tracking and horse statistics.",
-    link: "https://github.com/OOOHC/HorseRaceSimulator",
-    type: "VIEW PROJECT"
-  },
-  {
-    category: "GAME DESIGN",
-    title: "Hunt the Boggle Monster",
-    description: "A maze exploration game concept where players collect magical objects and use powers.",
-    link: "/projects/Level 5 mini project-Copy3.pdf",
-    type: "OPEN PDF"
-  },
-  {
-    category: "SOFTWARE SPECIFICATION",
-    title: "Messaging App Specification",
-    description: "Defining requirements, interactions, and system behavior for a messaging platform.",
-    link: "/projects/Group1.8_ECS427U_assignment3.pdf",
-    type: "OPEN PDF"
-  },
-  {
-    category: "RESEARCH PRESENTATION",
-    title: "Responsible Technology",
-    description: "Exploring responsible technology decisions and sustainability in modern computing.",
-    link: "/projects/Responsible & Sustainable Presentation.pdf",
-    type: "OPEN PDF"
-  }
-];
-
-const POSTS = [
-  {
-    date: "OCT 24, 2024",
-    title: "Exploring the Future of Generative AI",
-    description: "Diving deep into the implications of large language models on creative workflows and technical problem-solving. How can we ensure these tools augment human potential effectively?",
-    link: "#"
-  },
-  {
-    date: "OCT 12, 2024",
-    title: "My Journey into Robotics",
-    description: "Reflecting on the challenges of bridging the gap between abstract algorithms and physical hardware. A look into the assembly and navigation of my first mobile robot.",
-    link: "#"
-  },
-  {
-    date: "SEP 18, 2024",
-    title: "Optimizing Neural Networks",
-    description: "Practical strategies for achieving high performance when working with limited datasets. Focus on data augmentation and transfer learning techniques in computer vision.",
-    link: "#"
   }
 ];
 
@@ -482,13 +452,7 @@ const ExperienceCarousel = ({
               }`}
             >
               <div className="flex flex-col gap-10">
-                <div className={`w-16 h-16 flex items-center justify-center shrink-0 transition-all rounded-3xl ${
-                  isDarkMode 
-                    ? 'bg-tech-blue/10 text-tech-blue drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]' 
-                    : 'bg-neutral-50 text-[#4d8b8b]'
-                }`}>
-                  {getExperienceIcon(exp.iconKey)}
-                </div>
+                <ExperienceIconBadge experience={exp} isDarkMode={isDarkMode} />
                 <div className="space-y-8">
                   <div>
                     <h4 className={`font-sans font-bold text-xl md:text-2xl mb-3 leading-tight ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
@@ -589,13 +553,7 @@ const ExperienceCarousel = ({
                   }`}
                 >
                   <div className="flex flex-col gap-10">
-                    <div className={`w-16 h-16 flex items-center justify-center shrink-0 transition-all rounded-3xl ${
-                      isDarkMode 
-                        ? 'bg-tech-blue/10 text-tech-blue drop-shadow-[0_0_15px_rgba(0,240,255,0.4)]' 
-                        : 'bg-neutral-50 text-[#4d8b8b]'
-                      }`}>
-                      {getExperienceIcon(exp.iconKey)}
-                    </div>
+                    <ExperienceIconBadge experience={exp} isDarkMode={isDarkMode} />
                     <div className="space-y-8">
                       <div>
                         <h4 className={`font-sans font-bold text-xl md:text-3xl mb-3 leading-tight ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
@@ -686,7 +644,7 @@ export default function App() {
   const [experienceFormRole, setExperienceFormRole] = useState("");
   const [experienceFormPeriod, setExperienceFormPeriod] = useState("");
   const [experienceFormType, setExperienceFormType] = useState<ExperienceType>("work");
-  const [experienceFormIconKey, setExperienceFormIconKey] = useState<ExperienceIconKey>("briefcase");
+  const [experienceFormIconKey, setExperienceFormIconKey] = useState("Briefcase");
   const [experienceFormBullets, setExperienceFormBullets] = useState("");
   const [editingExperienceId, setEditingExperienceId] = useState<string | null>(null);
   const [experienceFormError, setExperienceFormError] = useState("");
@@ -700,11 +658,11 @@ export default function App() {
       if (res.ok) {
         setBlogs(await res.json());
       } else {
-        setBlogs(POSTS);
+        setBlogs([]);
       }
     } catch (e) {
       console.error("Failed to fetch blogs:", e);
-      setBlogs(POSTS);
+      setBlogs([]);
     } finally {
       setIsLoadingBlogs(false);
     }
@@ -717,11 +675,11 @@ export default function App() {
       if (res.ok) {
         setProjectsList(await res.json());
       } else {
-        setProjectsList(PROJECTS);
+        setProjectsList([]);
       }
     } catch (e) {
       console.error("Failed to fetch projects:", e);
-      setProjectsList(PROJECTS);
+      setProjectsList([]);
     } finally {
       setIsLoadingProjects(false);
     }
@@ -1096,7 +1054,7 @@ export default function App() {
     setExperienceFormRole(experience.role);
     setExperienceFormPeriod(experience.period || "");
     setExperienceFormType(experience.type);
-    setExperienceFormIconKey(experience.iconKey);
+    setExperienceFormIconKey(experience.iconKey || "Briefcase");
     setExperienceFormBullets((experience.bullets || []).join("\n"));
     setActiveAdminTab("experiences");
   };
@@ -1107,7 +1065,7 @@ export default function App() {
     setExperienceFormRole("");
     setExperienceFormPeriod("");
     setExperienceFormType("work");
-    setExperienceFormIconKey("briefcase");
+    setExperienceFormIconKey("Briefcase");
     setExperienceFormBullets("");
     setExperienceFormError("");
   };
@@ -1611,7 +1569,7 @@ export default function App() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-12 justify-center">
-            {(projectsList.length ? projectsList : PROJECTS).filter((project) => project.draft !== true).map((project, idx) => (
+            {projectsList.filter((project) => project.draft !== true).map((project, idx) => (
               <motion.div
                 key={project.id || project.title}
                 initial={{ opacity: 0, y: 20 }}
@@ -1650,7 +1608,7 @@ export default function App() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 justify-center">
-            {(blogs.length ? blogs : POSTS).filter((post) => post.draft !== true).map((post) => (
+            {blogs.filter((post) => post.draft !== true).map((post) => (
               <motion.div
                 key={post.id || post.title}
                 className={`group border p-8 flex flex-col h-full rounded-3xl transition-all relative
@@ -1883,7 +1841,7 @@ export default function App() {
                     <form onSubmit={handleCreateOrUpdateBlog} className="space-y-3">
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Title</label>
-                        <input type="text" required placeholder="Future of Intelligence..." value={blogFormTitle} onChange={(e) => setBlogFormTitle(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                        <input type="text" required placeholder="" value={blogFormTitle} onChange={(e) => setBlogFormTitle(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Description</label>
@@ -1905,7 +1863,7 @@ export default function App() {
                   <div>
                     <h4 className="text-xs font-bold tracking-widest uppercase font-mono mb-4 text-neutral-400">MANAGE RECENT ENTRIES</h4>
                     <div className="space-y-3">
-                      {(blogs.length ? blogs : POSTS).map((b) => (
+                      {blogs.map((b) => (
                         <div key={b.id || b.title} className={`px-4 py-2 rounded-xl border flex items-center justify-between gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white' : 'bg-neutral-50 border-neutral-200 text-neutral-950'}`}>
                           <div className="overflow-hidden">
                             <span className="text-[11px] font-mono text-neutral-400 uppercase tracking-widest mr-2">{b.date}</span>
@@ -1938,7 +1896,7 @@ export default function App() {
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Title</label>
-                        <input type="text" required placeholder="Project title..." value={projectFormTitle} onChange={(e) => setProjectFormTitle(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-sans focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                        <input type="text" required placeholder="" value={projectFormTitle} onChange={(e) => setProjectFormTitle(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-sans focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                       </div>
                       <div>
                         <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Description</label>
@@ -1960,7 +1918,7 @@ export default function App() {
                   <div>
                     <h4 className="text-xs font-bold tracking-widest uppercase font-mono mb-4 text-neutral-400">MANAGE RECENT PROJECTS</h4>
                     <div className="space-y-3">
-                      {(projectsList.length ? projectsList : PROJECTS).map((p) => (
+                      {projectsList.map((p) => (
                         <div key={p.id || p.title} className={`px-4 py-2 rounded-xl border flex items-center justify-between gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white' : 'bg-neutral-50 border-neutral-200 text-neutral-950'}`}>
                           <div className="overflow-hidden">
                             <span className="text-[11px] font-mono text-neutral-400 uppercase tracking-widest mr-2">{p.category}</span>
@@ -2003,10 +1961,8 @@ export default function App() {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Visual Icon Key</label>
-                          <select value={experienceFormIconKey} onChange={(e) => setExperienceFormIconKey(e.target.value as ExperienceIconKey)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`}>
-                            {EXPERIENCE_ICON_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                          </select>
+                          <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Icon Code</label>
+                          <input type="text" placeholder="Briefcase, Cpu, GraduationCap..." value={experienceFormIconKey} onChange={(e) => setExperienceFormIconKey(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
                         </div>
                       </div>
                       <div>
@@ -2025,7 +1981,7 @@ export default function App() {
                   <div>
                     <h4 className="text-xs font-bold tracking-widest uppercase font-mono mb-4 text-neutral-400">MANAGE RECENT EXPERIENCES</h4>
                     <div className="space-y-3">
-                      {(experiences.length ? experiences : []).map((experience) => (
+                      {experiences.map((experience) => (
                         <div key={experience.id || experience.title} className={`px-4 py-4 rounded-xl border flex items-center justify-between gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white' : 'bg-neutral-50 border-neutral-200 text-neutral-950'}`}>
                           <div className="overflow-hidden min-w-0">
                             <div className="flex items-center gap-2 text-[11px] font-mono text-neutral-400 uppercase tracking-widest mb-1">
