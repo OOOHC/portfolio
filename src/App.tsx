@@ -1153,6 +1153,10 @@ export default function App() {
   }, [isDarkMode]);
 
   useEffect(() => {
+    // Disable parallax on touch/mobile devices to prevent scroll flicker
+    const isTouchDevice = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    if (isTouchDevice) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
@@ -1172,7 +1176,7 @@ export default function App() {
     <div className={`min-h-screen selection:bg-brand-pink/40 bg-brand-cream text-neutral-900 overflow-x-hidden transition-colors duration-500 ${isDarkMode ? 'dark bg-neutral-950 text-neutral-100' : ''}`}>
       
       {/* Tech Overlay for Dark Mode */}
-      {isDarkMode && <div className="fixed inset-0 pointer-events-none tech-grid z-0 opacity-40 animate-pulse-slow" />}
+      {isDarkMode && <div className="fixed inset-0 pointer-events-none tech-grid z-0 opacity-40 " />}
       
       {/* Navigation */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-8 h-20 flex items-center justify-between border-b ${isDarkMode ? 'bg-neutral-950/80 border-neutral-800 backdrop-blur-xl' : 'bg-white/80 border-neutral-100 backdrop-blur-md'}`}>
@@ -1512,10 +1516,11 @@ export default function App() {
           </div>
 
           {/* Central Typography */}
-          <div id="about-me-content"className="relative z-10 text-center max-w-3xl px-4 w-full mt-120 md:mt-[-5rem] flex flex-col items-center justify-center gap-6">
+          <div id="about-me-content"className="relative z-10 text-center max-w-3xl px-4 w-full mt-125 md:mt-[-5rem] flex flex-col items-center justify-center gap-6">
             {/* Display Name with Custom Glow Badge */}
             <motion.div 
               initial={{ opacity: 0, y: -15, scale: 0.95 }}
+                viewport={{ once: true }}
               animate={phase === 'floating' ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -15, scale: 0.95 }}
               transition={{ duration: 0.7, type: "spring", stiffness: 90 }}
               className="flex flex-col items-center"
@@ -1791,6 +1796,7 @@ export default function App() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              viewport={{ once: true }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             className={`w-full max-w-md p-8 rounded-[2rem] border transition-colors duration-500
               ${isDarkMode
