@@ -1322,7 +1322,7 @@ export default function App() {
         className="pt-24 space-y-24"
       >
         {/* Interactive Hero */}
-        <section ref={heroRef} className="relative md:h-[90vh] flex flex-col items-center justify-center p-6">
+        <section ref={heroRef} className="relative md:h-[750px] lg:h-[90vh] flex flex-col items-center justify-center p-6">
           {/* Parallax Floating Labels */}
           <div className="absolute inset-0 z-0 pointer-events-none">
             {/* Label 1: Research */}
@@ -1404,7 +1404,7 @@ export default function App() {
                 duration: 0.8,
                 delay: 3.5 // After Development
               }}
-              className="absolute bottom-[33%] md:bottom-[23%] left-[5%] md:left-[5%] pointer-events-auto cursor-pointer"
+              className="absolute bottom-[33%] md:bottom-[20%] lg:bottom-[23%] left-[5%] md:left-[6%] lg:left-[5%] pointer-events-auto cursor-pointer"
             >
               <motion.div style={{ x: depth1X, y: depth1Y }}>
                 <div className={`bento-card border border-white/50 shadow-xl w-48 md:w-64 rotate-[5deg] p-6 transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-tech-green/30 shadow-tech-green/20' : 'bg-brand-green shadow-green-200/20'}`}>
@@ -1435,7 +1435,7 @@ export default function App() {
                 duration: 0.8,
                 delay: 0.5 // Appears first after heading
               }}
-              className="absolute bottom-[28%] md:bottom-[13%] right-[9%] md:right-[9%] pointer-events-auto cursor-pointer"
+              className="absolute bottom-[28%] md:bottom-[4%] lg:bottom-[13%] right-[9%] md:right-[9%] pointer-events-auto cursor-pointer"
             >
               <motion.div style={{ x: depth2X, y: depth2Y }}>
                 <div className={`bento-card border shadow-2xl p-2 w-44 md:w-56 rotate-[-4deg] transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-neutral-800' : 'bg-white border-neutral-100 shadow-[0_0_25px_rgba(255,255,255,0.7)]'}`}>
@@ -1469,7 +1469,7 @@ export default function App() {
                 duration: 0.8,
                 delay: 4.0 
               }}
-              className="absolute top-[28%] md:top-[27%] left-[5%] md:left-[13%] pointer-events-auto cursor-pointer"
+              className="absolute top-[28%] md:top-[36%] lg:top-[27%] left-[5%] md:left-[8%] lg:left-[13%] pointer-events-auto cursor-pointer"
             >
               <motion.div style={{ x: depth1X, y: depth1Y }}>
                 <div className={`bento-card border shadow-xl w-40 md:w-56 rotate-[15deg] p-4 text-center transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-tech-purple/30 shadow-tech-purple/20' : 'bg-brand-purple border-white/50 shadow-purple-200/20'}`}>
@@ -1500,7 +1500,7 @@ export default function App() {
                 duration: 0.8,
                 delay: 4.5
               }}
-              className="absolute top-[23%] md:top-[25%] right-[13%] md:right-[16%] pointer-events-auto cursor-pointer"
+              className="absolute top-[23%] md:top-[26%] lg:top-[25%] right-[13%] md:right-[16%] lg:right-[16%] pointer-events-auto cursor-pointer"
             >
               <motion.div style={{ x: depth2X, y: depth2Y }}>
                 <div className={`bento-card border shadow-xl w-40 md:w-56 rotate-[-3deg] p-4 text-center transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-neutral-800 shadow-white/5' : 'bg-white border-neutral-100 shadow-[0_0_20px_rgba(255,255,255,0.8)]'}`}>
@@ -1525,18 +1525,18 @@ export default function App() {
               transition={{ duration: 0.7, type: "spring", stiffness: 90 }}
               className="flex flex-col items-center"
             >
-              <span className={`px-4 py-1.5 rounded-full text-[10px] md:text-[14px] font-mono font-bold uppercase tracking-[0.3em] border transition-all duration-500
+              <span className={`px-4 py-1.5 rounded-full text-[10px] md:text-[11px] lg:text-[14px] font-mono font-bold uppercase tracking-[0.3em] border transition-colors transition-shadow duration-500
                 ${isDarkMode 
                   ? 'bg-neutral-950/80 border-tech-blue/30 text-tech-blue shadow-[0_0_15px_rgba(0,240,255,0.15)]' 
                   : 'bg-neutral-50 border-neutral-200 text-neutral-500 shadow-sm'}`}>
                 <span className="hidden md:inline">Portfolio OF</span>
                 <span className="inline md:hidden">About Me</span>
               </span>
-              <h1 className={`font-hand text-[50px] md:text-[120px] font-medium mt-4 mb-2 leading-none tracking-tight transition-colors duration-500
+              <h1 className={`font-hand text-[50px] md:text-[70px] lg:text-[120px] font-medium mt-4 mb-2 leading-none tracking-tight transition-colors duration-500
                 ${isDarkMode ? 'text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.25)]' : 'text-neutral-950'}`}>
                 Ling Ling He
               </h1>
-              <p className={`font-mono text-[12px] md:text-[16px] mt-3 uppercase tracking-widest transition-colors duration-500 mt-1
+              <p className={`font-mono text-[12px] lg:text-[16px] mt-3 uppercase tracking-widest transition-colors duration-500 mt-1
                 ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
                 Designing Intelligent Systems
               </p>
@@ -1549,7 +1549,7 @@ export default function App() {
                     e.preventDefault();
                     document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] md:text-[14px] font-mono font-bold uppercase tracking-wider border transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] md:text-[12px] lg:text-[14px] font-mono font-bold uppercase tracking-wider border transition-colors transition-shadow duration-300 hover:scale-[1.03] active:scale-[0.98]
                     ${isDarkMode 
                       ? 'bg-tech-blue border-neutral-800 text-black hover:border-neutral-700 hover:bg-neutral-900/80' 
                       : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:border-neutral-300'}`}
@@ -1564,7 +1564,7 @@ export default function App() {
                     e.preventDefault();
                     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] md:text-[14px] font-mono font-bold uppercase tracking-wider border transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] md:text-[12px] lg:text-[14px] font-mono font-bold uppercase tracking-wider border transition-colors transition-shadow duration-300 hover:scale-[1.03] active:scale-[0.98]
                     ${isDarkMode 
                       ? 'bg-tech-blue border-neutral-800 text-black hover:border-neutral-700 hover:bg-neutral-900/80' 
                       : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:border-neutral-300'}`}
@@ -1604,12 +1604,12 @@ export default function App() {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: (catIdx * 0.1) + (idx * 0.05) }}
-                      className={`group flex flex-col items-center justify-center p-6 rounded-[2.5rem] border transition-all duration-500 
+                      className={`group flex flex-col items-center justify-center p-6 rounded-[2.5rem] border transition-colors transition-shadow duration-500 
                         ${isDarkMode 
                           ? 'bg-black border-neutral-800 shadow-[0_0_30px_rgba(77,139,139,0.05)] hover:shadow-[0_0_50px_rgba(77,139,139,0.2)] hover:border-tech-green/50' 
                           : `border-neutral-100/50 ${skill.color}`}`}
                     >
-                      <div className={`p-3 rounded-2xl mb-3 transition-all duration-300 group-hover:scale-110 
+                      <div className={`p-3 rounded-2xl mb-3 transition-colors transition-shadow duration-300 group-hover:scale-110 
                         ${isDarkMode 
                           ? 'bg-neutral-800/50 text-tech-green group-hover:bg-tech-blue group-hover:text-black group-hover:shadow-[0_0_20px_rgba(77,139,139,0.6)]' 
                           : 'bg-white/30 text-neutral-700 group-hover:bg-white group-hover:shadow-[0_0_20px_rgba(255,255,255,0.8)]'}`}>
@@ -1640,7 +1640,7 @@ export default function App() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.1 }}
-                className={`group border p-8 flex flex-col h-full rounded-3xl transition-all relative
+                className={`group border p-8 flex flex-col h-full rounded-3xl transition-colors transition-shadow relative
                   ${isDarkMode 
                     ? 'bg-black border-neutral-800 shadow-[0_0_30px_rgba(0,240,255,0.05)] hover:shadow-[0_0_50px_rgba(0,240,255,0.2)] hover:border-tech-blue/50' 
                     : 'bg-white border-neutral-100 shadow-xl shadow-neutral-200/20 hover:shadow-2xl hover:shadow-neutral-300/40 hover:border-neutral-200'}`}
@@ -1675,7 +1675,7 @@ export default function App() {
             {blogs.filter((post) => post.draft !== true).map((post) => (
               <motion.div
                 key={post.id || post.title}
-                className={`group border p-8 flex flex-col h-full rounded-3xl transition-all relative
+                className={`group border p-8 flex flex-col h-full rounded-3xl transition-colors transition-shadow relative
                   ${isDarkMode 
                     ? 'bg-black border-neutral-800 shadow-[0_0_30px_rgba(0,240,255,0.05)] hover:shadow-[0_0_50px_rgba(0,240,255,0.2)] hover:border-tech-blue/50' 
                     : 'bg-white border-neutral-100 shadow-xl shadow-neutral-200/20 hover:shadow-2xl hover:shadow-neutral-300/40 hover:border-neutral-200'}`}
@@ -1685,7 +1685,7 @@ export default function App() {
                 <p className="text-[15px] text-neutral-400 dark:text-neutral-500 font-sans mb-8 leading-relaxed">{post.description}</p>
                 <div className="mt-auto">
                   <a href={post.link} 
-                  className={`inline-flex items-center gap-2 text-xs font-bold tracking-[0.3em] uppercase transition-all 
+                  className={`inline-flex items-center gap-2 text-xs font-bold tracking-[0.3em] uppercase transition-colors transition-shadow 
                         ${isDarkMode 
                           ? 'text-white group-hover:text-tech-blue' 
                           : 'text-neutral-900 group-hover:text-tech-green text-black'}`}
@@ -1719,7 +1719,7 @@ export default function App() {
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              className={`p-16 flex flex-col items-center text-center space-y-8 rounded-[3rem] transition-all duration-500 border ${isDarkMode ? 'bg-neutral-900/50 border-neutral-800 shadow-[0_20px_50px_-20px_rgba(0,240,255,0.1)] backdrop-blur-xl' : 'bg-[#e8f3f1] border-transparent shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)]'}`}
+              className={`p-16 flex flex-col items-center text-center space-y-8 rounded-[3rem] transition-colors transition-shadow duration-500 border ${isDarkMode ? 'bg-neutral-900/50 border-neutral-800 shadow-[0_20px_50px_-20px_rgba(0,240,255,0.1)] backdrop-blur-xl' : 'bg-[#e8f3f1] border-transparent shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)]'}`}
             >
               <div className="w-12 h-12 flex items-center justify-center mb-2">
                 <GraduationCap className={`w-8 h-8 transition-colors ${isDarkMode ? 'text-tech-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]' : 'text-neutral-800'}`} />
@@ -1728,7 +1728,7 @@ export default function App() {
                 <h4 className={`font-sans font-bold text-[22px] ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>BSc Computer Science and Artificial Intelligence</h4>
                 <p className={`text-m font-sans ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>Queen Mary University of London | 2024 - current</p>
               </div>
-              <div className={`px-8 py-3 rounded-full text-[14px] font-bold tracking-[0.2em] uppercase transition-all duration-500 cursor-default ${
+              <div className={`px-8 py-3 rounded-full text-[14px] font-bold tracking-[0.2em] uppercase transition-colors transition-shadow duration-500 cursor-default ${
                 isDarkMode 
                   ? 'bg-neutral-800/50 text-tech-blue border border-tech-blue/20 hover:border-tech-blue/40 hover:bg-neutral-800 hover:shadow-[0_0_20px_rgba(0,240,255,0.15)]' 
                   : 'bg-white/50 text-[#4d8b8b] border border-transparent hover:bg-white hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)]'
@@ -1753,7 +1753,7 @@ export default function App() {
               <div className="flex flex-wrap items-center justify-center gap-6">
                 <a 
                   href="mailto:l.he@se24.qmul.ac.uk" 
-                  className={`pl-2 pr-10 py-2 rounded-full border transition-all hover:shadow-xl hover:translate-y-[-2px] group text-[16px] font-bold tracking-wider flex items-center gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white hover:border-tech-green/50 shadow-tech-green/5' : 'bg-white border-neutral-100 text-neutral-900 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)]'}`}
+                  className={`pl-2 pr-10 py-2 rounded-full border transition-colors transition-shadow hover:shadow-xl hover:translate-y-[-2px] group text-[16px] font-bold tracking-wider flex items-center gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white hover:border-tech-green/50 shadow-tech-green/5' : 'bg-white border-neutral-100 text-neutral-900 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)]'}`}
                 >
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isDarkMode ? 'bg-neutral-800 text-tech-blue group-hover:bg-tech-blue group-hover:text-black' : 'bg-neutral-50 group-hover:bg-black group-hover:text-white'}`}>
                     <Mail className="w-5 h-5" />
@@ -1762,7 +1762,7 @@ export default function App() {
                 </a>
                 <a 
                   href="https://www.linkedin.com/in/lingling-he-a61a10263/" 
-                  className={`pl-2 pr-10 py-2 rounded-full border transition-all hover:shadow-xl hover:translate-y-[-2px] group text-[16px] font-bold tracking-wider flex items-center gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white hover:border-tech-blue/50 shadow-tech-blue/5' : 'bg-white border-neutral-100 text-neutral-900 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)]'}`}
+                  className={`pl-2 pr-10 py-2 rounded-full border transition-colors transition-shadow hover:shadow-xl hover:translate-y-[-2px] group text-[16px] font-bold tracking-wider flex items-center gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white hover:border-tech-blue/50 shadow-tech-blue/5' : 'bg-white border-neutral-100 text-neutral-900 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)]'}`}
                 >
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isDarkMode ? 'bg-neutral-800 text-tech-blue group-hover:bg-tech-blue group-hover:text-black' : 'bg-neutral-50 group-hover:bg-black group-hover:text-white'}`}>
                     <Linkedin className="w-5 h-5" />
@@ -1771,7 +1771,7 @@ export default function App() {
                 </a>
                 <a 
                   href="https://github.com/OOOHC" 
-                  className={`pl-2 pr-10 py-2 rounded-full border transition-all hover:shadow-xl hover:translate-y-[-2px] group text-[16px] font-bold tracking-wider flex items-center gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white hover:border-tech-blue/50 shadow-tech-blue/5' : 'bg-white border-neutral-100 text-neutral-900 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)]'}`}
+                  className={`pl-2 pr-10 py-2 rounded-full border transition-colors transition-shadow hover:shadow-xl hover:translate-y-[-2px] group text-[16px] font-bold tracking-wider flex items-center gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white hover:border-tech-blue/50 shadow-tech-blue/5' : 'bg-white border-neutral-100 text-neutral-900 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)]'}`}
                 >
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isDarkMode ? 'bg-neutral-800 text-tech-blue group-hover:bg-tech-blue group-hover:text-black' : 'bg-neutral-50 group-hover:bg-black group-hover:text-white'}`}>
                     <Github className="w-5 h-5" />
