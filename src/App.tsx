@@ -219,7 +219,7 @@ const WorkStatus = ({ isDarkMode }: { isDarkMode: boolean }) => (
       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
       <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
     </div>
-    <span className={`text-[16px] font-bold tracking-widest uppercase ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>OPEN FOR WORK</span>
+    <span className={`text-[14px] md:text-[16px] font-bold tracking-widest uppercase ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>OPEN FOR WORK</span>
   </div>
 );
 
@@ -455,16 +455,16 @@ const ExperienceCarousel = ({
                 <ExperienceIconBadge experience={exp} isDarkMode={isDarkMode} />
                 <div className="space-y-8">
                   <div>
-                    <h4 className={`font-sans font-bold text-xl md:text-2xl mb-3 leading-tight ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
+                    <h4 className={`font-sans font-bold text-xl md:text-3xl mb-3 leading-tight ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
                       {exp.title}
                     </h4>
-                    <div className={`text-[11px] font-bold uppercase tracking-[0.3em] ${isDarkMode ? 'text-tech-blue' : 'text-[#4d8b8b]'}`}>
+                    <div className={`text-[13px] font-bold uppercase tracking-[0.3em] ${isDarkMode ? 'text-tech-blue' : 'text-[#4d8b8b]'}`}>
                       {exp.role} {exp.period && ` | ${exp.period}`}
                     </div>
                   </div>
                   <ul className="space-y-5">
                     {exp.bullets.map((bullet, i) => (
-                      <li key={i} className={`text-[13px] md:text-[14px] font-sans flex gap-5 leading-relaxed ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                      <li key={i} className={`text-[15px] md:text-[15px] font-sans flex gap-5 leading-relaxed ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
                         <span className={`mt-2.5 shrink-0 w-1.5 h-1.5 rounded-full ${isDarkMode ? 'bg-tech-blue/40' : 'bg-neutral-300'}`} />
                         {bullet}
                       </li>
@@ -1119,6 +1119,15 @@ export default function App() {
     setPhase('floating');
   }, []);
 
+  useEffect(() => {
+    if (phase === 'typing') {
+      const timer = setTimeout(() => {
+        handleTypewriterComplete();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [phase, loopKey, handleTypewriterComplete]);
+
   // Animation reset logic
   const handleReset = () => {
     setPhase('typing');
@@ -1185,7 +1194,7 @@ export default function App() {
             }}
             className={`font-display font-medium text-2xl tracking-tighter uppercase transition-colors duration-500 ${isDarkMode ? 'text-white hover:text-tech-blue' : 'text-neutral-800 hover:opacity-70'}`}
           >
-            LINGLING.HE
+            LING.LING.HE
           </a>
           <div className="scale-[0.65] sm:scale-[0.85] origin-left shrink-0 -mt-1 sm:mt-0">
             <WorkStatus isDarkMode={isDarkMode} />
@@ -1266,14 +1275,14 @@ export default function App() {
           initial={false}
           animate={isMobileMenuOpen ? { height: 'auto', opacity: 1, display: 'flex' } : { height: 0, opacity: 0, transitionEnd: { display: 'none' } }}
           transition={{ duration: 0.3, ease: 'easeInOut' }}
-          className={`absolute top-full left-0 right-0 flex-col items-center py-10 gap-6 lg:hidden overflow-hidden shadow-xl border-b transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-neutral-800 backdrop-blur-xl' : 'bg-white/80 border-neutral-100 backdrop-blur-md'}`}
+          className={`absolute top-full left-0 right-0 flex-col items-center py-3 gap-5 lg:hidden overflow-hidden shadow-xl border-b transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-neutral-800 backdrop-blur-xl' : 'bg-white/80 border-neutral-100 backdrop-blur-md'}`}
         >
-          <a href="#about" onClick={() => setIsMobileMenuOpen(false)} className={`text-xl font-hand uppercase tracking-tight transition-colors ${isDarkMode ? 'text-neutral-300 hover:text-tech-green' : 'text-neutral-800 hover:text-blue-600'}`}>About Me</a>
-          <a href="#projects" onClick={() => setIsMobileMenuOpen(false)} className={`text-xl font-hand uppercase tracking-tight transition-colors ${isDarkMode ? 'text-neutral-300 hover:text-tech-green' : 'text-neutral-800 hover:text-blue-600'}`}>Projects</a>
-          <a href="#experience" onClick={() => setIsMobileMenuOpen(false)} className={`text-xl font-hand uppercase tracking-tight transition-colors ${isDarkMode ? 'text-neutral-300 hover:text-tech-green' : 'text-neutral-800 hover:text-blue-600'}`}>Experience</a>
-          <a href="#education" onClick={() => setIsMobileMenuOpen(false)} className={`text-xl font-hand uppercase tracking-tight transition-colors ${isDarkMode ? 'text-neutral-300 hover:text-tech-green' : 'text-neutral-800 hover:text-blue-600'}`}>Education</a>
-          <a href="#blog" onClick={() => setIsMobileMenuOpen(false)} className={`text-xl font-hand uppercase tracking-tight transition-colors ${isDarkMode ? 'text-neutral-300 hover:text-tech-green' : 'text-neutral-800 hover:text-blue-600'}`}>Blog</a>
-          <a href="#contact" onClick={() => setIsMobileMenuOpen(false)} className={`text-xl font-hand uppercase tracking-tight transition-colors ${isDarkMode ? 'text-neutral-300 hover:text-tech-green' : 'text-neutral-800 hover:text-blue-600'}`}>Contact</a>
+          <a href="#about-me-content" onClick={() => setIsMobileMenuOpen(false)} className={`text-lg font-hand uppercase tracking-tight transition-colors ${isDarkMode ? 'text-neutral-300 hover:text-tech-green' : 'text-neutral-800 hover:text-blue-600'}`}>About Me</a>
+          <a href="#projects" onClick={() => setIsMobileMenuOpen(false)} className={`text-lg font-hand uppercase tracking-tight transition-colors ${isDarkMode ? 'text-neutral-300 hover:text-tech-green' : 'text-neutral-800 hover:text-blue-600'}`}>Projects</a>
+          <a href="#experience" onClick={() => setIsMobileMenuOpen(false)} className={`text-lg font-hand uppercase tracking-tight transition-colors ${isDarkMode ? 'text-neutral-300 hover:text-tech-green' : 'text-neutral-800 hover:text-blue-600'}`}>Experience</a>
+          <a href="#education" onClick={() => setIsMobileMenuOpen(false)} className={`text-lg font-hand uppercase tracking-tight transition-colors ${isDarkMode ? 'text-neutral-300 hover:text-tech-green' : 'text-neutral-800 hover:text-blue-600'}`}>Education</a>
+          <a href="#blog" onClick={() => setIsMobileMenuOpen(false)} className={`text-lg font-hand uppercase tracking-tight transition-colors ${isDarkMode ? 'text-neutral-300 hover:text-tech-green' : 'text-neutral-800 hover:text-blue-600'}`}>Blog</a>
+          <a href="#contact" onClick={() => setIsMobileMenuOpen(false)} className={`text-lg font-hand uppercase tracking-tight transition-colors ${isDarkMode ? 'text-neutral-300 hover:text-tech-green' : 'text-neutral-800 hover:text-blue-600'}`}>Contact</a>
           {isAuthenticated && (
             <>
               <button
@@ -1309,9 +1318,9 @@ export default function App() {
         className="pt-24 space-y-24"
       >
         {/* Interactive Hero */}
-        <section ref={heroRef} className="relative h-[90vh] flex flex-col items-center justify-center p-6">
+        <section ref={heroRef} className="relative md:h-[90vh] flex flex-col items-center justify-center p-6">
           {/* Parallax Floating Labels */}
-          <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 z-0 pointer-events-none">
             {/* Label 1: Research */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.8 }}
@@ -1329,7 +1338,7 @@ export default function App() {
                 duration: 0.8,
                 delay: 1.5 // After Image
               }}
-              className="absolute top-[12%] left-[2%] md:left-[5%] pointer-events-auto cursor-pointer"
+              className="absolute top-[6%] left-[2%] md:left-[5%] pointer-events-auto cursor-pointer"
             >
               <motion.div style={{ x: depth1X, y: depth1Y }}>
                 <div className={`bento-card border border-white/50 shadow-xl w-48 md:w-64 rotate-[-6deg] p-6 transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-tech-blue/30 shadow-tech-blue/20' : 'bg-brand-blue shadow-blue-200/20'}`}>
@@ -1360,7 +1369,7 @@ export default function App() {
                 duration: 0.8,
                 delay: 2.5 // After Research
               }}
-              className="absolute top-[8%] right-[2%] md:right-[10%] pointer-events-auto cursor-pointer"
+              className="absolute top-[5%] right-[2%] md:right-[12%] pointer-events-auto cursor-pointer"
             >
               <motion.div style={{ x: depth2X, y: depth2Y }}>
                 <div className={`bento-card border border-white/50 shadow-xl w-48 md:w-64 rotate-[4deg] p-6 transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-tech-purple/30 shadow-tech-purple/20' : 'bg-brand-pink shadow-pink-200/20'}`}>
@@ -1391,7 +1400,7 @@ export default function App() {
                 duration: 0.8,
                 delay: 3.5 // After Development
               }}
-              className="absolute bottom-[15%] md:bottom-[12%] left-[5%] md:left-[5%] pointer-events-auto cursor-pointer"
+              className="absolute bottom-[33%] md:bottom-[23%] left-[5%] md:left-[5%] pointer-events-auto cursor-pointer"
             >
               <motion.div style={{ x: depth1X, y: depth1Y }}>
                 <div className={`bento-card border border-white/50 shadow-xl w-48 md:w-64 rotate-[5deg] p-6 transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-tech-green/30 shadow-tech-green/20' : 'bg-brand-green shadow-green-200/20'}`}>
@@ -1422,7 +1431,7 @@ export default function App() {
                 duration: 0.8,
                 delay: 0.5 // Appears first after heading
               }}
-              className="absolute bottom-[21%] md:bottom-[10%] right-[8%] md:right-[10%] pointer-events-auto cursor-pointer"
+              className="absolute bottom-[28%] md:bottom-[13%] right-[9%] md:right-[9%] pointer-events-auto cursor-pointer"
             >
               <motion.div style={{ x: depth2X, y: depth2Y }}>
                 <div className={`bento-card border shadow-2xl p-2 w-44 md:w-56 rotate-[-4deg] transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-neutral-800' : 'bg-white border-neutral-100 shadow-[0_0_25px_rgba(255,255,255,0.7)]'}`}>
@@ -1456,10 +1465,10 @@ export default function App() {
                 duration: 0.8,
                 delay: 4.0 
               }}
-              className="absolute top-[42%] md:top-[48%] left-[5%] md:left-[14%] pointer-events-auto cursor-pointer"
+              className="absolute top-[28%] md:top-[27%] left-[5%] md:left-[13%] pointer-events-auto cursor-pointer"
             >
               <motion.div style={{ x: depth1X, y: depth1Y }}>
-                <div className={`bento-card border shadow-xl w-40 md:w-56 rotate-[18deg] p-4 text-center transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-tech-purple/30 shadow-tech-purple/20' : 'bg-brand-purple border-white/50 shadow-purple-200/20'}`}>
+                <div className={`bento-card border shadow-xl w-40 md:w-56 rotate-[15deg] p-4 text-center transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-tech-purple/30 shadow-tech-purple/20' : 'bg-brand-purple border-white/50 shadow-purple-200/20'}`}>
                   <div className={`text-[10px] font-mono font-bold uppercase tracking-widest mb-1 ${isDarkMode ? 'text-tech-purple' : 'text-purple-600'}`}>UI/UX</div>
                   <div className={`font-hand text-lg md:text-xl ${isDarkMode ? 'text-white' : 'text-neutral-800'}`}>
                     {phase === 'floating' && (
@@ -1487,7 +1496,7 @@ export default function App() {
                 duration: 0.8,
                 delay: 4.5
               }}
-              className="absolute top-[25%] md:top-[26%] right-[20%] md:right-[20%] pointer-events-auto cursor-pointer"
+              className="absolute top-[23%] md:top-[25%] right-[13%] md:right-[16%] pointer-events-auto cursor-pointer"
             >
               <motion.div style={{ x: depth2X, y: depth2Y }}>
                 <div className={`bento-card border shadow-xl w-40 md:w-56 rotate-[-3deg] p-4 text-center transition-all duration-500 ${isDarkMode ? 'bg-neutral-950/80 border-neutral-800 shadow-white/5' : 'bg-white border-neutral-100 shadow-[0_0_20px_rgba(255,255,255,0.8)]'}`}>
@@ -1503,21 +1512,71 @@ export default function App() {
           </div>
 
           {/* Central Typography */}
-          <div className="relative z-10 text-center max-w-4xl px-4 w-full -mt-16 md:-mt-24">
-            <h1 className="text-2xl md:text-5xl font-hand mb-2 leading-[1.1] text-neutral-900 dark:text-white dark:drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] min-h-[2em] px-2">
-                <Typewriter 
-                  key={loopKey}
-                  text="What's my next breakthrough?" 
-                  onComplete={handleTypewriterComplete} 
-                />
-            </h1>
+          <div id="about-me-content"className="relative z-10 text-center max-w-3xl px-4 w-full mt-120 md:mt-[-5rem] flex flex-col items-center justify-center gap-6">
+            {/* Display Name with Custom Glow Badge */}
+            <motion.div 
+              initial={{ opacity: 0, y: -15, scale: 0.95 }}
+              animate={phase === 'floating' ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: -15, scale: 0.95 }}
+              transition={{ duration: 0.7, type: "spring", stiffness: 90 }}
+              className="flex flex-col items-center"
+            >
+              <span className={`px-4 py-1.5 rounded-full text-[10px] md:text-[14px] font-mono font-bold uppercase tracking-[0.3em] border transition-all duration-500
+                ${isDarkMode 
+                  ? 'bg-neutral-950/80 border-tech-blue/30 text-tech-blue shadow-[0_0_15px_rgba(0,240,255,0.15)]' 
+                  : 'bg-neutral-50 border-neutral-200 text-neutral-500 shadow-sm'}`}>
+                <span className="hidden md:inline">Portfolio OF</span>
+                <span className="inline md:hidden">About Me</span>
+              </span>
+              <h1 className={`font-hand text-[50px] md:text-[120px] font-medium mt-4 mb-2 leading-none tracking-tight transition-colors duration-500
+                ${isDarkMode ? 'text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.25)]' : 'text-neutral-950'}`}>
+                Ling Ling He
+              </h1>
+              <p className={`font-mono text-[12px] md:text-[16px] mt-3 uppercase tracking-widest transition-colors duration-500 mt-1
+                ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                Designing Intelligent Systems
+              </p>
+
+              {/* Call to Actions (CTA) */}
+              <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
+                <a 
+                  href="#projects"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] md:text-[14px] font-mono font-bold uppercase tracking-wider border transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]
+                    ${isDarkMode 
+                      ? 'bg-tech-blue border-neutral-800 text-black hover:border-neutral-700 hover:bg-neutral-900/80' 
+                      : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:border-neutral-300'}`}
+                >
+                  <span>Explore Projects</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </a>
+                
+                <a 
+                  href="#contact"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] md:text-[14px] font-mono font-bold uppercase tracking-wider border transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]
+                    ${isDarkMode 
+                      ? 'bg-tech-blue border-neutral-800 text-black hover:border-neutral-700 hover:bg-neutral-900/80' 
+                      : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:border-neutral-300'}`}
+                >
+                  <span>Get in Touch</span>
+                  <Mail className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </motion.div>
           </div>
         </section>
 
         {/* About */}
         <section id="about" className="max-w-5xl mx-auto px-2 space-y-8">
           <div className="text-center space-y-2">
-            <div className="text-[13px] font-bold uppercase tracking-[0.4em] text-neutral-400">ABOUT ME</div>
+            <div className="hidden md:inline text-[13px] font-bold uppercase tracking-[0.4em] text-neutral-400">ABOUT ME</div>
+            <div className="inline md:hidden text-[13px] font-bold uppercase tracking-[0.4em] text-neutral-400">TECH STACK</div>
             <h2 className="text-4xl md:text-6xl font-hand leading-tight">Curious, practical, and research-minded</h2>
             <p className="text-neutral-400 font-sans leading-relaxed text-sm md:text-lg max-w-2xl mx-auto">
             I am developing a foundation in computer science, artificial intelligence, databases, and web technologies, with a focus on building practical systems across software, AI, and automation.
@@ -1581,15 +1640,15 @@ export default function App() {
                     ? 'bg-black border-neutral-800 shadow-[0_0_30px_rgba(0,240,255,0.05)] hover:shadow-[0_0_50px_rgba(0,240,255,0.2)] hover:border-tech-blue/50' 
                     : 'bg-white border-neutral-100 shadow-xl shadow-neutral-200/20 hover:shadow-2xl hover:shadow-neutral-300/40 hover:border-neutral-200'}`}
               >
-                <div className="text-[14px] text-neutral-500 font-sans font-medium uppercase tracking-[0.15em] mb-6"> {project.category}</div>
-                <h3 className="font-hand text-3xl mb-3 leading-tight dark:text-white">{project.title}</h3>
-                <p className="text-lg text-neutral-400 font-sans leading-relaxed mb-8 flex-grow">{project.description}</p>
+                <div className="text-[13px] text-neutral-500 font-sans font-medium uppercase tracking-[0.15em] mb-6"> {project.category}</div>
+                <h3 className="font-hand text-2xl md:text-3xl mb-3 leading-tight dark:text-white">{project.title}</h3>
+                <p className="text-[15px] text-neutral-400 font-sans leading-relaxed mb-8 flex-grow">{project.description}</p>
                 <div className="mt-auto">
                   <a 
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`inline-flex items-center gap-1.5 text-[13px] font-bold tracking-widest uppercase transition-colors 
+                    className={`inline-flex items-center gap-1.5 text-xs font-bold tracking-widest uppercase transition-colors 
                       ${isDarkMode ? 'text-white group-hover:text-tech-blue' : 'text-neutral-900 group-hover:text-tech-green'}`}
                   >
                     {project.type} <ArrowUpRight className="w-4 h-4" />
@@ -1616,12 +1675,12 @@ export default function App() {
                     ? 'bg-black border-neutral-800 shadow-[0_0_30px_rgba(0,240,255,0.05)] hover:shadow-[0_0_50px_rgba(0,240,255,0.2)] hover:border-tech-blue/50' 
                     : 'bg-white border-neutral-100 shadow-xl shadow-neutral-200/20 hover:shadow-2xl hover:shadow-neutral-300/40 hover:border-neutral-200'}`}
               >
-                <div className="text-[14px] text-neutral-300 dark:text-neutral-600 font-mono font-bold uppercase tracking-widest mb-4">{post.date}</div>
-                <h3 className="font-hand text-3xl mb-3 leading-tight dark:text-white">{post.title}</h3>
-                <p className="text-lg text-neutral-400 dark:text-neutral-500 font-sans mb-8 leading-relaxed">{post.description}</p>
+                <div className="text-[13px] text-neutral-300 dark:text-neutral-600 font-mono font-bold uppercase tracking-widest mb-4">{post.date}</div>
+                <h3 className="font-hand text-2xl md:text-3xl mb-3 leading-tight dark:text-white">{post.title}</h3>
+                <p className="text-[15px] text-neutral-400 dark:text-neutral-500 font-sans mb-8 leading-relaxed">{post.description}</p>
                 <div className="mt-auto">
                   <a href={post.link} 
-                  className={`inline-flex items-center gap-2 text-[13px] font-bold tracking-[0.3em] uppercase transition-all 
+                  className={`inline-flex items-center gap-2 text-xs font-bold tracking-[0.3em] uppercase transition-all 
                         ${isDarkMode 
                           ? 'text-white group-hover:text-tech-blue' 
                           : 'text-neutral-900 group-hover:text-tech-green text-black'}`}
@@ -1740,7 +1799,7 @@ export default function App() {
           >
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-2">
-                <Lock className={`w-5 h-5 ${isDarkMode ? 'text-tech-purple' : 'text-neutral-900'}`} />
+                <Lock className={`w-5 h-5 ${isDarkMode ? 'text-tech-blue' : 'text-neutral-900'}`} />
                 <h3 className="text-xl font-bold tracking-wider font-mono">ADMIN LOGIN</h3>
               </div>
               <button
@@ -1762,7 +1821,7 @@ export default function App() {
                   onChange={(e) => setLoginUsername(e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border text-sm font-mono focus:outline-none transition-all
                     ${isDarkMode
-                      ? 'bg-neutral-950 border-neutral-800 text-white focus:border-tech-purple/50 focus:shadow-[0_0_15px_rgba(188,0,255,0.2)]'
+                      ? 'bg-neutral-950 border-neutral-800 text-white focus:border-tech-blue/50 focus:shadow-[0_0_15px_rgba(188,0,255,0.2)]'
                       : 'bg-neutral-50 border-neutral-200 text-neutral-950 focus:border-neutral-800'}`}
                 />
               </div>
@@ -1777,7 +1836,7 @@ export default function App() {
                   onChange={(e) => setLoginPassword(e.target.value)}
                   className={`w-full px-4 py-3 rounded-xl border text-sm font-mono focus:outline-none transition-all
                     ${isDarkMode
-                      ? 'bg-neutral-950 border-neutral-800 text-white focus:border-tech-purple/50 focus:shadow-[0_0_15px_rgba(188,0,255,0.2)]'
+                      ? 'bg-neutral-950 border-neutral-800 text-white focus:border-tech-blue/50 focus:shadow-[0_0_15px_rgba(188,0,255,0.2)]'
                       : 'bg-neutral-50 border-neutral-200 text-neutral-950 focus:border-neutral-800'}`}
                 />
               </div>
@@ -1792,7 +1851,7 @@ export default function App() {
                 type="submit"
                 className={`w-full py-3.5 rounded-xl text-xs font-bold tracking-widest uppercase transition-all
                   ${isDarkMode
-                    ? 'bg-tech-purple text-white hover:bg-opacity-90 shadow-[0_0_20px_rgba(188,0,255,0.3)]'
+                    ? 'bg-tech-blue text-white hover:bg-opacity-90 shadow-[0_0_20px_rgba(188,0,255,0.3)]'
                     : 'bg-black text-white hover:bg-neutral-900'}`}
               >
                 SIGN IN
