@@ -1516,7 +1516,7 @@ export default function App() {
           </div>
 
           {/* Central Typography */}
-          <div id="about-me-content"className="relative z-10 text-center max-w-3xl px-4 w-full mt-130 md:mt-[-5rem] flex flex-col items-center justify-center gap-6">
+          <div id="about-me-content"className="relative z-10 text-center max-w-3xl px-4 w-full mt-125 md:mt-[-5rem] flex flex-col items-center justify-center gap-6">
             {/* Display Name with Custom Glow Badge */}
             <motion.div 
               initial={{ opacity: 0, y: -15, scale: 0.95 }}
@@ -1653,8 +1653,8 @@ export default function App() {
                     href={project.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`inline-flex items-center gap-1.5 text-xs font-bold tracking-widest uppercase transition-colors 
-                      ${isDarkMode ? 'text-white group-hover:text-tech-blue' : 'text-tech-green group-hover:text-tech-green'}`}
+                    className={`inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors 
+                      ${isDarkMode ? 'text-white group-hover:text-tech-blue' : 'text-tech-green md:text-neutral-900 group-hover:text-tech-green'}`}
                   >
                     {project.type} <ArrowUpRight className="w-4 h-4" />
                   </a>
@@ -1685,10 +1685,10 @@ export default function App() {
                 <p className="text-[15px] text-neutral-400 dark:text-neutral-500 font-sans mb-8 leading-relaxed">{post.description}</p>
                 <div className="mt-auto">
                   <a href={post.link} 
-                  className={`inline-flex items-center gap-2 text-xs font-bold tracking-[0.3em] uppercase transition-colors transition-shadow 
+                  className={`inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase transition-colors transition-shadow 
                         ${isDarkMode 
                           ? 'text-white group-hover:text-tech-blue' 
-                          : 'text-tech-green group-hover:text-tech-green text-black'}`}
+                          : 'text-tech-green md:text-neutral-900 group-hover:text-tech-green text-black'}`}
                     >
                     READ MORE <ArrowUpRight className="w-4 h-4" />
                   </a>
