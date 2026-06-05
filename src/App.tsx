@@ -1628,7 +1628,7 @@ export default function App() {
         {/* Projects */}
         <section id="projects" className="max-w-7xl mx-auto px-2 space-y-6">
           <div className="space-y-2 text-center">
-            <div className="text-[13px] font-bold uppercase tracking-[0.2em] text-neutral-400">WORK EXPERIENCES</div>
+            <div className="text-[13px] font-bold uppercase tracking-[0.2em] text-neutral-400">PROJECTS</div>
             <h2 className={`text-4xl md:text-6xl font-hand leading-tight font-medium max-w-2xl mx-auto transition-colors duration-500 ${isDarkMode ? 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.25)]' : 'text-neutral-900'}`}>Projects</h2>
           </div>
           
