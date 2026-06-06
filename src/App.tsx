@@ -75,6 +75,15 @@ type ExperienceRecord = {
   draft?: boolean;
 };
 
+type EducationRecord = {
+  id: string;
+  degree: string;
+  institution: string;
+  period: string;
+  focus?: string;
+  draft?: boolean;
+};
+
 const EXPERIENCE_TYPE_OPTIONS: Array<{ label: string; value: ExperienceType }> = [
   { label: "Academic & Technical", value: "work" },
   { label: "Voluntary Work", value: "voluntary" },
@@ -213,15 +222,41 @@ const Typewriter = ({ text, onComplete }: { text: string; onComplete?: () => voi
   );
 };
 
-const WorkStatus = ({ isDarkMode }: { isDarkMode: boolean }) => (
-  <div className="flex items-center gap-2">
-    <div className="relative flex h-2.5 w-2.5">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+const WorkStatus = ({ 
+  isDarkMode, 
+  text, 
+  color 
+}: { 
+  isDarkMode: boolean; 
+  text: string; 
+  color: string; 
+}) => {
+  const getDotColors = () => {
+    switch (color?.toLowerCase()) {
+      case "red":
+        return { ping: "bg-red-400", main: "bg-red-500" };
+      case "gray":
+        return { ping: "bg-neutral-400", main: "bg-neutral-500" };
+      case "green":
+      default:
+        return { ping: "bg-green-400", main: "bg-green-500" };
+    }
+  };
+
+  const colors = getDotColors();
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="relative flex h-2.5 w-2.5">
+        <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${colors.ping}`}></span>
+        <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${colors.main}`}></span>
+      </div>
+      <span className={`text-[14px] md:text-[16px] font-bold tracking-widest uppercase ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>
+        {text || "OPEN TO WORK"}
+      </span>
     </div>
-    <span className={`text-[14px] md:text-[16px] font-bold tracking-widest uppercase ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>OPEN FOR WORK</span>
-  </div>
-);
+  );
+};
 
 const ExperienceCarousel = ({
   isDarkMode,
@@ -619,8 +654,12 @@ export default function App() {
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [experiences, setExperiences] = useState<ExperienceRecord[]>([]);
   const [isLoadingExperiences, setIsLoadingExperiences] = useState(true);
+  const [education, setEducation] = useState<EducationRecord[]>([]);
+  const [isLoadingEducation, setIsLoadingEducation] = useState(true);
   const [resumeUrl, setResumeUrl] = useState("");
-  const [activeAdminTab, setActiveAdminTab] = useState<'blogs' | 'projects' | 'experiences' | 'resume'>('blogs');
+  const [statusText, setStatusText] = useState("OPEN TO WORK");
+  const [statusColor, setStatusColor] = useState("green");
+  const [activeAdminTab, setActiveAdminTab] = useState<'blogs' | 'projects' | 'experiences' | 'education' | 'resume'>('blogs');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
@@ -649,7 +688,15 @@ export default function App() {
   const [editingExperienceId, setEditingExperienceId] = useState<string | null>(null);
   const [experienceFormError, setExperienceFormError] = useState("");
   const [resumeFormUrl, setResumeFormUrl] = useState("");
+  const [statusFormText, setStatusFormText] = useState("OPEN TO WORK");
+  const [statusFormColor, setStatusFormColor] = useState("green");
   const [resumeFormError, setResumeFormError] = useState("");
+  const [educationFormDegree, setEducationFormDegree] = useState("");
+  const [educationFormInstitution, setEducationFormInstitution] = useState("");
+  const [educationFormPeriod, setEducationFormPeriod] = useState("");
+  const [educationFormFocus, setEducationFormFocus] = useState("");
+  const [editingEducationId, setEditingEducationId] = useState<string | null>(null);
+  const [educationFormError, setEducationFormError] = useState("");
 
   const fetchBlogs = useCallback(async () => {
     setIsLoadingBlogs(true);
@@ -720,6 +767,47 @@ export default function App() {
     }
   }, []);
 
+  const fetchWorkStatus = useCallback(async () => {
+    try {
+      const res = await fetch("/api/work-status");
+      if (res.ok) {
+        const data = await res.json();
+        setStatusText(data.text || "OPEN TO WORK");
+        setStatusFormText(data.text || "OPEN TO WORK");
+        setStatusColor(data.color || "green");
+        setStatusFormColor(data.color || "green");
+      } else {
+        setStatusText("OPEN TO WORK");
+        setStatusFormText("OPEN TO WORK");
+        setStatusColor("green");
+        setStatusFormColor("green");
+      }
+    } catch (e) {
+      console.error("Failed to fetch work status:", e);
+      setStatusText("OPEN TO WORK");
+      setStatusFormText("OPEN TO WORK");
+      setStatusColor("green");
+      setStatusFormColor("green");
+    }
+  }, []);
+
+  const fetchEducation = useCallback(async () => {
+    setIsLoadingEducation(true);
+    try {
+      const res = await fetch("/api/education");
+      if (res.ok) {
+        setEducation(await res.json());
+      } else {
+        setEducation([]);
+      }
+    } catch (e) {
+      console.error("Failed to fetch education:", e);
+      setEducation([]);
+    } finally {
+      setIsLoadingEducation(false);
+    }
+  }, []);
+
   const checkAuth = useCallback(async () => {
     const token = localStorage.getItem("lingling_admin_token");
     if (!token) {
@@ -755,9 +843,11 @@ export default function App() {
     fetchBlogs();
     fetchProjects();
     fetchExperiences();
+    fetchEducation();
     fetchResume();
+    fetchWorkStatus();
     checkAuth();
-  }, [fetchBlogs, fetchProjects, fetchExperiences, fetchResume, checkAuth]);
+  }, [fetchBlogs, fetchProjects, fetchExperiences, fetchEducation, fetchResume, fetchWorkStatus, checkAuth]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1070,6 +1160,90 @@ export default function App() {
     setExperienceFormError("");
   };
 
+  const handleCreateOrUpdateEducation = async (e: React.FormEvent, isDraft: boolean = false) => {
+    e.preventDefault();
+    setEducationFormError("");
+
+    if (!educationFormDegree.trim() || !educationFormInstitution.trim()) {
+      setEducationFormError("Degree title and institution are required");
+      return;
+    }
+
+    const token = localStorage.getItem("lingling_admin_token");
+    if (!token) {
+      setEducationFormError("Not authenticated");
+      return;
+    }
+
+    const url = editingEducationId ? `/api/education/${editingEducationId}` : "/api/education";
+    const method = editingEducationId ? "PUT" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          degree: educationFormDegree,
+          institution: educationFormInstitution,
+          period: educationFormPeriod,
+          focus: educationFormFocus,
+          draft: isDraft
+        })
+      });
+
+      if (res.ok) {
+        clearEducationForm();
+        fetchEducation();
+      } else {
+        const err = await res.json();
+        setEducationFormError(err.error || "Failed to save education entry");
+      }
+    } catch {
+      setEducationFormError("Network error occurred");
+    }
+  };
+
+  const handleDeleteEducation = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this education entry?")) return;
+    const token = localStorage.getItem("lingling_admin_token");
+    if (!token) return;
+
+    try {
+      const res = await fetch(`/api/education/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        fetchEducation();
+      } else {
+        alert("Failed to delete education entry");
+      }
+    } catch {
+      alert("Network error occurred");
+    }
+  };
+
+  const startEditEducation = (entry: EducationRecord) => {
+    setEditingEducationId(entry.id);
+    setEducationFormDegree(entry.degree);
+    setEducationFormInstitution(entry.institution);
+    setEducationFormPeriod(entry.period || "");
+    setEducationFormFocus(entry.focus || "");
+    setActiveAdminTab("education");
+  };
+
+  const clearEducationForm = () => {
+    setEditingEducationId(null);
+    setEducationFormDegree("");
+    setEducationFormInstitution("");
+    setEducationFormPeriod("");
+    setEducationFormFocus("");
+    setEducationFormError("");
+  };
+
   const handleSaveResume = async (e: React.FormEvent) => {
     e.preventDefault();
     setResumeFormError("");
@@ -1097,6 +1271,44 @@ export default function App() {
       } else {
         const err = await res.json();
         setResumeFormError(err.error || "Failed to save resume link");
+      }
+    } catch {
+      setResumeFormError("Network error occurred");
+    }
+  };
+
+  const handleSaveWorkStatus = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResumeFormError("");
+
+    const token = localStorage.getItem("lingling_admin_token");
+    if (!token) {
+      setResumeFormError("Not authenticated");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/work-status", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          text: statusFormText,
+          color: statusFormColor
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setStatusText(data.text || statusFormText);
+        setStatusFormText(data.text || statusFormText);
+        setStatusColor(data.color || statusFormColor);
+        setStatusFormColor(data.color || statusFormColor);
+      } else {
+        const err = await res.json();
+        setResumeFormError(err.error || "Failed to save work status");
       }
     } catch {
       setResumeFormError("Network error occurred");
@@ -1201,7 +1413,7 @@ export default function App() {
             LING.LING.HE
           </a>
           <div className="scale-[0.65] sm:scale-[0.85] origin-left shrink-0 -mt-1 sm:mt-0">
-            <WorkStatus isDarkMode={isDarkMode} />
+            <WorkStatus isDarkMode={isDarkMode} text={statusText} color={statusColor} />
           </div>
         </div>
 
@@ -1551,7 +1763,7 @@ export default function App() {
                   }}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] md:text-[12px] lg:text-[14px] font-mono font-bold uppercase tracking-wider border transition-colors transition-shadow duration-300 hover:scale-[1.03] active:scale-[0.98]
                     ${isDarkMode 
-                      ? 'bg-tech-blue border-neutral-800 text-black hover:border-neutral-700 hover:bg-neutral-900/80' 
+                      ? 'bg-neutral-950/80 border-tech-blue/30 text-tech-blue shadow-[0_0_15px_rgba(0,240,255,0.15)]' 
                       : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:border-neutral-300'}`}
                 >
                   <span>Explore Projects</span>
@@ -1566,7 +1778,7 @@ export default function App() {
                   }}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-[11px] md:text-[12px] lg:text-[14px] font-mono font-bold uppercase tracking-wider border transition-colors transition-shadow duration-300 hover:scale-[1.03] active:scale-[0.98]
                     ${isDarkMode 
-                      ? 'bg-tech-blue border-neutral-800 text-black hover:border-neutral-700 hover:bg-neutral-900/80' 
+                      ? 'bg-neutral-950/80 border-tech-blue/30 text-tech-blue shadow-[0_0_15px_rgba(0,240,255,0.15)]'
                       : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50 hover:border-neutral-300'}`}
                 >
                   <span>Get in Touch</span>
@@ -1715,27 +1927,37 @@ export default function App() {
               <h2 className={`text-4xl md:text-6xl font-hand leading-tight font-medium max-w-2xl mx-auto transition-colors duration-500 ${isDarkMode ? 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.25)]' : 'text-neutral-900'}`}>Academic Foundation</h2>
             </div>
 
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className={`p-16 flex flex-col items-center text-center space-y-8 rounded-[3rem] transition-colors transition-shadow duration-500 border ${isDarkMode ? 'bg-neutral-900/50 border-neutral-800 shadow-[0_20px_50px_-20px_rgba(0,240,255,0.1)] backdrop-blur-xl' : 'bg-[#e8f3f1] border-transparent shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)]'}`}
-            >
-              <div className="w-12 h-12 flex items-center justify-center mb-2">
-                <GraduationCap className={`w-8 h-8 transition-colors ${isDarkMode ? 'text-tech-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]' : 'text-neutral-800'}`} />
-              </div>
-              <div className="space-y-2">
-                <h4 className={`font-sans font-bold text-[22px] ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>BSc Computer Science and Artificial Intelligence</h4>
-                <p className={`text-m font-sans ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>Queen Mary University of London | 2024 - current</p>
-              </div>
-              <div className={`px-8 py-3 rounded-full text-[14px] font-bold tracking-[0.2em] uppercase transition-colors transition-shadow duration-500 cursor-default ${
-                isDarkMode 
-                  ? 'bg-neutral-800/50 text-tech-blue border border-tech-blue/20 hover:border-tech-blue/40 hover:bg-neutral-800 hover:shadow-[0_0_20px_rgba(0,240,255,0.15)]' 
-                  : 'bg-white/50 text-[#4d8b8b] border border-transparent hover:bg-white hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)]'
-            }`}>
-                FUTURE FOCUS: AI & ROBOTICS
-              </div>
-            </motion.div>
+            <div className="space-y-8">
+              {education.filter((entry) => entry.draft !== true).map((entry, idx) => (
+                <motion.div
+                  key={entry.id || entry.degree}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.08 }}
+                  className={`p-16 flex flex-col items-center text-center space-y-8 rounded-[3rem] transition-colors transition-shadow duration-500 border ${isDarkMode ? 'bg-neutral-900/50 border-neutral-800 shadow-[0_20px_50px_-20px_rgba(0,240,255,0.1)] backdrop-blur-xl' : 'bg-[#e8f3f1] border-transparent shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)]'}`}
+                >
+                  <div className="w-12 h-12 flex items-center justify-center mb-2">
+                    <GraduationCap className={`w-8 h-8 transition-colors ${isDarkMode ? 'text-tech-blue drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]' : 'text-neutral-800'}`} />
+                  </div>
+                  <div className="space-y-2">
+                    <h4 className={`font-sans font-bold text-[22px] ${isDarkMode ? 'text-white' : 'text-neutral-900'}`}>{entry.degree}</h4>
+                    <p className={`text-m font-sans ${isDarkMode ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                      {entry.institution}{entry.period && ` | ${entry.period}`}
+                    </p>
+                  </div>
+                  {entry.focus && (
+                    <div className={`px-8 py-3 rounded-full text-[14px] font-bold tracking-[0.2em] uppercase transition-colors transition-shadow duration-500 cursor-default ${
+                      isDarkMode
+                        ? 'bg-neutral-800/50 text-tech-blue border border-tech-blue/20 hover:border-tech-blue/40 hover:bg-neutral-800 hover:shadow-[0_0_20px_rgba(0,240,255,0.15)]'
+                        : 'bg-white/50 text-[#4d8b8b] border border-transparent hover:bg-white hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)]'
+                    }`}>
+                      {entry.focus}
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
           </section>
         </div>
 
@@ -1893,10 +2115,11 @@ export default function App() {
               </div>
 
               <div className="flex flex-wrap mb-6 font-mono text-xs gap-4">
-                <button onClick={() => { setActiveAdminTab("blogs"); clearProjectForm(); clearExperienceForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "blogs" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE BLOG POSTS</button>
-                <button onClick={() => { setActiveAdminTab("projects"); clearBlogForm(); clearExperienceForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "projects" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE PROJECTS</button>
-                <button onClick={() => { setActiveAdminTab("experiences"); clearBlogForm(); clearProjectForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "experiences" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE EXPERIENCES</button>
-                <button onClick={() => { setActiveAdminTab("resume"); clearBlogForm(); clearProjectForm(); clearExperienceForm(); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "resume" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE RESUME</button>
+                <button onClick={() => { setActiveAdminTab("blogs"); clearProjectForm(); clearExperienceForm(); clearEducationForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "blogs" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE BLOG POSTS</button>
+                <button onClick={() => { setActiveAdminTab("projects"); clearBlogForm(); clearExperienceForm(); clearEducationForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "projects" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE PROJECTS</button>
+                <button onClick={() => { setActiveAdminTab("experiences"); clearBlogForm(); clearProjectForm(); clearEducationForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "experiences" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE EXPERIENCES</button>
+                <button onClick={() => { setActiveAdminTab("education"); clearBlogForm(); clearProjectForm(); clearExperienceForm(); setResumeFormError(""); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "education" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>MANAGE EDUCATION</button>
+                <button onClick={() => { setActiveAdminTab("resume"); clearBlogForm(); clearProjectForm(); clearExperienceForm(); clearEducationForm(); }} className={`pb-2 px-1 border-b-2 transition-all font-bold ${activeAdminTab === "resume" ? (isDarkMode ? "border-tech-blue text-tech-blue" : "border-neutral-900 text-neutral-900") : (isDarkMode ? "border-transparent text-neutral-500 hover:text-neutral-300" : "border-transparent text-neutral-400 hover:text-neutral-600")}`}>RESUME & STATUS</button>
               </div>
 
               {activeAdminTab === "blogs" ? (
@@ -2067,26 +2290,109 @@ export default function App() {
                     </div>
                   </div>
                 </>
+              ) : activeAdminTab === "education" ? (
+                <>
+                  <div className={`p-6 rounded-2xl border mb-8 transition-all duration-300 ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
+                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>{editingEducationId ? "EDIT EDUCATION ENTRY" : "CREATE NEW EDUCATION ENTRY"}</h4>
+                    <form onSubmit={(e) => handleCreateOrUpdateEducation(e, false)} className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Degree Title</label>
+                        <input type="text" required placeholder="BSc Computer Science and Artificial Intelligence" value={educationFormDegree} onChange={(e) => setEducationFormDegree(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Institution</label>
+                          <input type="text" required placeholder="Queen Mary University of London" value={educationFormInstitution} onChange={(e) => setEducationFormInstitution(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Period</label>
+                          <input type="text" placeholder="2024 - current" value={educationFormPeriod} onChange={(e) => setEducationFormPeriod(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Focus / Highlight (Optional)</label>
+                        <input type="text" placeholder="FUTURE FOCUS: AI & ROBOTICS" value={educationFormFocus} onChange={(e) => setEducationFormFocus(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                      </div>
+                      {educationFormError && <div className="text-xs font-mono text-red-500">{educationFormError}</div>}
+                      <div className="flex flex-wrap items-center gap-3 pt-2">
+                        <button type="submit" className={`px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${isDarkMode ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(188,0,255,0.25)] hover:shadow-[0_0_25px_rgba(188,0,255,0.45)]' : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}>{editingEducationId ? "PUBLISH UPDATE" : "PUBLISH EDUCATION"}</button>
+                        <button type="button" onClick={(e) => handleCreateOrUpdateEducation(e, true)} className="px-5 py-2.5 bg-neutral-600 hover:bg-neutral-700 text-white font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all">{editingEducationId ? "SAVE AS DRAFT" : "SAVE DRAFT"}</button>
+                        {editingEducationId && <button type="button" onClick={clearEducationForm} className="px-4 py-2.5 border border-neutral-300 dark:border-neutral-700 text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">Cancel</button>}
+                        {editingEducationId && <button type="button" onClick={() => editingEducationId && handleDeleteEducation(editingEducationId)} className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all font-mono">DELETE EDUCATION</button>}
+                      </div>
+                    </form>
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold tracking-widest uppercase font-mono mb-4 text-neutral-400">MANAGE RECENT EDUCATION ENTRIES</h4>
+                    <div className="space-y-3">
+                      {education.map((entry) => (
+                        <div key={entry.id || entry.degree} className={`px-4 py-4 rounded-xl border flex items-center justify-between gap-4 ${isDarkMode ? 'bg-neutral-900 border-neutral-800 text-white' : 'bg-neutral-50 border-neutral-200 text-neutral-950'}`}>
+                          <div className="overflow-hidden min-w-0">
+                            <div className="flex items-center gap-2 text-[11px] font-mono text-neutral-400 uppercase tracking-widest mb-1">
+                              <GraduationCap className="w-4 h-4" />
+                              <span>{entry.institution}</span>
+                              {entry.period && <span>({entry.period})</span>}
+                              {entry.draft && <span className={`px-1.5 py-0.5 text-[10px] font-mono tracking-widest uppercase font-bold rounded border ${isDarkMode ? 'text-tech-blue bg-tech-blue/10 border-tech-blue/30' : 'text-brand-sage-600 bg-brand-sage-50 border-brand-sage-200'}`}>DRAFT</span>}
+                            </div>
+                            <h5 className="font-bold text-[15px] truncate">{entry.degree}</h5>
+                            {entry.focus && <p className="text-[13px] text-neutral-400 truncate max-w-md">{entry.focus}</p>}
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button onClick={() => startEditEducation(entry)} className={`p-1.5 rounded-lg border transition-all duration-200 outline-none ${isDarkMode ? 'bg-tech-blue/10 text-tech-blue border-tech-blue/20 hover:bg-tech-blue hover:text-black hover:border-tech-blue hover:shadow-[0_0_10px_rgba(0,240,255,0.4)]' : 'bg-brand-sage-50 text-brand-sage-600 border-brand-sage-100 hover:bg-brand-sage-600 hover:text-white hover:border-brand-sage-600 shadow-sm'}`} title="Edit"><Edit className="w-3.5 h-3.5" /></button>
+                            {entry.id && <button onClick={() => handleDeleteEducation(entry.id)} className={`p-1.5 rounded-lg border transition-all duration-200 outline-none ${isDarkMode ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500 hover:text-white hover:border-red-500 hover:shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-white text-red-600 border-red-100 hover:bg-red-600 hover:text-white hover:border-red-600 shadow-sm shadow-red-50'}`} title="Delete"><Trash2 className="w-3.5 h-3.5" /></button>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
               ) : (
-                <div className={`p-6 rounded-2xl border mb-8 transition-all duration-300 ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
-                  <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>EDIT RESUME / CV LINK</h4>
-                  <form onSubmit={handleSaveResume} className="space-y-4">
-                    <div>
-                      <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Resume (PDF) URL</label>
-                      <input type="text" required placeholder="https://..." value={resumeFormUrl} onChange={(e) => setResumeFormUrl(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
-                    </div>
-                    <p className="text-[13px] text-neutral-500 font-mono leading-relaxed">Provide a URL pointing directly to your CV (e.g., Google Drive, Dropbox, your own website, or static assets).</p>
-                    {resumeFormError && <div className="text-xs font-mono text-red-500">{resumeFormError}</div>}
-                    <div className="pt-2">
-                      <button type="submit" className={`px-6 py-3 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${isDarkMode ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(188,0,255,0.25)] hover:shadow-[0_0_25px_rgba(188,0,255,0.45)]' : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}>SAVE CV LINK</button>
-                    </div>
-                  </form>
+                <div className="space-y-6">
+                  {/* EDIT RESUME / CV LINK */}
+                  <div className={`p-6 rounded-2xl border transition-all duration-300 ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
+                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>EDIT RESUME / CV LINK</h4>
+                    <form onSubmit={handleSaveResume} className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Resume (PDF) URL</label>
+                        <input type="text" required placeholder="https://..." value={resumeFormUrl} onChange={(e) => setResumeFormUrl(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                      </div>
+                      <p className="text-[13px] text-neutral-500 font-mono leading-relaxed">Provide a URL pointing directly to your CV (e.g., Google Drive, Dropbox, your own website, or static assets).</p>
+                      <div className="pt-2">
+                        <button type="submit" className={`px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${isDarkMode ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(188,0,255,0.25)] hover:shadow-[0_0_25px_rgba(188,0,255,0.45)]' : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}>SAVE CV LINK</button>
+                      </div>
+                    </form>
+                  </div>
+
+                  {/* EDIT CURRENT WORK STATUS */}
+                  <div className={`p-6 rounded-2xl border transition-all duration-300 ${isDarkMode ? 'bg-neutral-900/30 border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'}`}>
+                    <h4 className={`text-xs font-bold tracking-widest uppercase font-mono mb-4 ${isDarkMode ? 'text-tech-purple' : 'text-brand-sage-500'}`}>EDIT CURRENT WORK STATUS</h4>
+                    <form onSubmit={handleSaveWorkStatus} className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Status Text</label>
+                        <input type="text" required placeholder="OPEN TO WORK" value={statusFormText} onChange={(e) => setStatusFormText(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`} />
+                      </div>
+                      <p className="text-[13px] text-neutral-500 font-mono leading-relaxed">Describe your current work availability (e.g., OPEN TO WORK, BUSY, ACADEMIC RESEARCH).</p>
+                      
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Status Dot Color</label>
+                        <select value={statusFormColor} onChange={(e) => setStatusFormColor(e.target.value)} className={`w-full px-3 py-2.5 rounded-xl border text-[13px] font-mono focus:outline-none ${isDarkMode ? 'bg-neutral-950 border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-950'}`}>
+                          <option value="green">🟢 Green (Open to work)</option>
+                          <option value="red">🔴 Red (Unavailable)</option>
+                          <option value="gray">⚫ Gray (Break / Rest)</option>
+                        </select>
+                      </div>
+                      
+                      {resumeFormError && <div className="text-xs font-mono text-red-500">{resumeFormError}</div>}
+                      <div className="pt-2">
+                        <button type="submit" className={`px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-widest rounded-xl transition-all ${isDarkMode ? 'bg-tech-blue hover:bg-opacity-90 text-black shadow-[0_0_15px_rgba(188,0,255,0.25)] hover:shadow-[0_0_25px_rgba(188,0,255,0.45)]' : 'bg-brand-sage-600 hover:bg-brand-sage-700 text-white shadow-md hover:shadow-lg hover:shadow-brand-sage-100'}`}>SAVE STATUS</button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               )}
             </div>
 
-            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-6 mt-8 flex justify-between items-center">
-              <span className="text-xs font-mono text-neutral-400">Session Active</span>
+            <div className="border-t border-neutral-200 dark:border-neutral-800 pt-6 mt-8 flex justify-end items-center">
               <button onClick={handleLogout} className="px-4 py-2 bg-red-500 hover:bg-red-700 text-white text-xs font-mono uppercase tracking-widest font-bold rounded-xl transition-all">
                 SIGN OUT
               </button>

@@ -50,6 +50,7 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const BLOGS_FILE = path.join(DATA_DIR, "blogs.json");
 const EXPERIENCES_FILE = path.join(DATA_DIR, "experiences.json");
 const RESUME_FILE = path.join(DATA_DIR, "resume.json");
+const EDUCATION_FILE = path.join(DATA_DIR, "education.json");
 
 async function getBlogs() {
   try {
@@ -212,6 +213,17 @@ const DEFAULT_EXPERIENCES = [
 
 const DEFAULT_RESUME = { id: "resume", url: "/resume.pdf" };
 
+const DEFAULT_EDUCATION = [
+  {
+    id: "education-1",
+    degree: "BSc Computer Science and Artificial Intelligence",
+    institution: "Queen Mary University of London",
+    period: "2024 - current",
+    focus: "FUTURE FOCUS: AI & ROBOTICS",
+    draft: false
+  }
+];
+
 async function getProjects() {
   try {
     await fs.mkdir(DATA_DIR, { recursive: true });
@@ -289,6 +301,33 @@ async function saveResumeSettings(resume: any) {
     return true;
   } catch (error) {
     console.error("Error saving resume database:", error);
+    return false;
+  }
+}
+
+async function getEducation() {
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    try {
+      const data = await fs.readFile(EDUCATION_FILE, "utf-8");
+      return JSON.parse(data);
+    } catch {
+      await fs.writeFile(EDUCATION_FILE, JSON.stringify(DEFAULT_EDUCATION, null, 2), "utf-8");
+      return DEFAULT_EDUCATION;
+    }
+  } catch (error) {
+    console.error("Error reading education database:", error);
+    return DEFAULT_EDUCATION;
+  }
+}
+
+async function saveEducation(education: any) {
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    await fs.writeFile(EDUCATION_FILE, JSON.stringify(education, null, 2), "utf-8");
+    return true;
+  } catch (error) {
+    console.error("Error saving education database:", error);
     return false;
   }
 }
@@ -853,6 +892,169 @@ async function startServer() {
       res.json({ url });
     } else {
       res.status(500).json({ error: "Failed to save resume URL" });
+    }
+  });
+
+
+  // GET /api/work-status
+  app.get("/api/work-status", async (req, res) => {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('work_status').select('*').eq('id', 'status').maybeSingle();
+        if (error) return res.status(500).json({ error: error.message });
+        return res.json(data || { text: 'OPEN TO WORK', color: 'green' });
+      } catch (e: any) {
+        return res.status(500).json({ error: e.message });
+      }
+    }
+    res.json({ text: 'OPEN TO WORK', color: 'green' });
+  });
+
+  // PUT /api/work-status
+  app.put("/api/work-status", requireAuth, async (req, res) => {
+    const { text, color } = req.body;
+    if (!text || !color) return res.status(400).json({ error: "Text and color are required" });
+    if (!['green', 'red', 'gray'].includes(color)) return res.status(400).json({ error: "Color must be green, red, or gray" });
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('work_status').upsert({ id: 'status', text, color }).select();
+        if (error) return res.status(500).json({ error: error.message });
+        return res.json(data && data[0]);
+      } catch (e: any) {
+        return res.status(500).json({ error: e.message });
+      }
+    }
+    res.json({ text, color });
+  });
+
+  // Get all education entries
+  app.get("/api/education", async (req, res) => {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('education').select('*').order('inserted_at', { ascending: false });
+        if (error) {
+          console.error('Supabase fetch education error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
+        return res.json(data || []);
+      } catch (e: any) {
+        console.error('Supabase fetch education unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
+      }
+    }
+    const education = await getEducation();
+    res.json(education);
+  });
+
+  // Add an education entry
+  app.post("/api/education", requireAuth, async (req, res) => {
+    const { degree, institution, period, focus, draft } = req.body;
+    if (!degree || !institution) {
+      return res.status(400).json({ error: "Degree title and institution are required" });
+    }
+    const newEducation = {
+      id: Date.now().toString(),
+      degree,
+      institution,
+      period: period || "",
+      focus: focus || "",
+      draft: !!draft
+    };
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('education').insert([newEducation]).select();
+        if (error) {
+          console.error('Supabase insert education error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
+        return res.status(201).json((data && data[0]) || newEducation);
+      } catch (e: any) {
+        console.error('Supabase insert education unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
+      }
+    }
+    const education = await getEducation();
+    education.unshift(newEducation);
+    const success = await saveEducation(education);
+    if (success) {
+      res.status(201).json(newEducation);
+    } else {
+      res.status(500).json({ error: "Failed to persist education entry" });
+    }
+  });
+
+  // Edit an education entry
+  app.put("/api/education/:id", requireAuth, async (req, res) => {
+    const { id } = req.params;
+    const { degree, institution, period, focus, draft } = req.body;
+    if (supabase) {
+      try {
+        const updates: any = {};
+        if (degree !== undefined) updates.degree = degree;
+        if (institution !== undefined) updates.institution = institution;
+        if (period !== undefined) updates.period = period;
+        if (focus !== undefined) updates.focus = focus;
+        if (draft !== undefined) updates.draft = !!draft;
+        const { data, error } = await supabase.from('education').update(updates).eq('id', id).select();
+        if (error) {
+          console.error('Supabase update education error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
+        if (!data || data.length === 0) return res.status(404).json({ error: 'Education entry not found' });
+        return res.json(data[0]);
+      } catch (e: any) {
+        console.error('Supabase update education unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
+      }
+    }
+    const education = await getEducation();
+    const idx = education.findIndex((entry: any) => entry.id === id);
+    if (idx === -1) {
+      return res.status(404).json({ error: "Education entry not found" });
+    }
+    education[idx] = {
+      ...education[idx],
+      degree: degree || education[idx].degree,
+      institution: institution || education[idx].institution,
+      period: period !== undefined ? period : education[idx].period,
+      focus: focus !== undefined ? focus : education[idx].focus,
+      draft: draft !== undefined ? !!draft : education[idx].draft
+    };
+    const success = await saveEducation(education);
+    if (success) {
+      res.json(education[idx]);
+    } else {
+      res.status(500).json({ error: "Failed to save education entry" });
+    }
+  });
+
+  // Delete an education entry
+  app.delete("/api/education/:id", requireAuth, async (req, res) => {
+    const { id } = req.params;
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.from('education').delete().eq('id', id).select();
+        if (error) {
+          console.error('Supabase delete education error:', error);
+          return res.status(500).json({ error: error.message || String(error) });
+        }
+        if (!data || data.length === 0) return res.status(404).json({ error: 'Education entry not found' });
+        return res.json({ message: 'Successfully deleted education entry' });
+      } catch (e: any) {
+        console.error('Supabase delete education unexpected error:', e);
+        return res.status(500).json({ error: e.message || String(e) });
+      }
+    }
+    const education = await getEducation();
+    const filteredEducation = education.filter((entry: any) => entry.id !== id);
+    if (filteredEducation.length === education.length) {
+      return res.status(404).json({ error: "Education entry not found" });
+    }
+    const success = await saveEducation(filteredEducation);
+    if (success) {
+      res.json({ message: "Successfully deleted education entry" });
+    } else {
+      res.status(500).json({ error: "Failed to delete education entry" });
     }
   });
 
